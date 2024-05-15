@@ -1,9 +1,19 @@
 const{projectForm, resetInputs} = require('./projectForm');
+const{ parseData, storeItems, retreiveSideBar} = require('./dataStorage');
+const{populateProject} = require('./createProject');
+const{DOMObjects, elementText} = require('./createDOM');
 import './stylesheets/style.css';
+
 
 
 function initiate(){
   let body = document.querySelector('body');
+
+  //TEMPORARY CACHE CLEAR BUTTON:
+  let clearCache = document.querySelector('.clearCache');
+  clearCache.addEventListener('click',() =>{
+    localStorage.clear();
+  })
 
   let bodyContainer = DOMObjects('div', 'bodyContainer', body);
 
@@ -12,21 +22,23 @@ function initiate(){
   //routing page construction
   header(bodyContainer);
   sideBar(sideBarContainer);
-  appendArea(bodyContainer);
   
   let addProject = document.querySelector('.addProject');
 
   let hiddenContainer = projectForm(bodyContainer)
-  
 
   addProject.addEventListener('click',() => {
-
     hiddenContainer.style.display = 'block';
   });
 
   let submit = document.querySelector('.submitBtn');
   submit.addEventListener('click',()=>{
-    //project file initiate 
+    // parseData(); /* assigns value to items and passes to proj obj creater */
+    let projectObj = parseData();
+    populateProject(projectObj);
+    storeItems(projectObj)
+
+
     resetInputs();
     hiddenContainer.style.display = 'none';
   })
@@ -35,8 +47,9 @@ function initiate(){
 
   let cancel = document.querySelector('.cancelBtn');
   cancel.addEventListener('click',()=>{
-    resetInputs();
+
     hiddenContainer.style.display = 'none';
+    resetInputs();
   })
 
   
@@ -55,29 +68,25 @@ function sideBar(sideBarContainer){
   const sideBarTitle = DOMObjects('h2', 'sideBarTitle', sideBarHeader);
   elementText(sideBarTitle, 'Projects');
 
-  const ul = DOMObjects('ul', 'projectList', sideBarHeader);
+  const ul = DOMObjects('ul', 'projectList', sideBarContainer);
   const addProject = DOMObjects('button', 'addProject', sideBarContainer);
   elementText(addProject, 'Add Project');
 
-}
-function appendArea(bodyContainer){
+  retreiveSideBar(ul)
 
+  let li = document.querySelectorAll('li');
+  li.forEach((item) =>{
+    item.addEventListener('click',() =>{
+      let name = li.elementText;
+      console.log(name)
+    })
+  })
+ 
 }
+
+
 //FACTORY FUNCTIONS
 
-function DOMObjects(elementType,name, parent){
-  let item = document.createElement(elementType);
-  if (name !== null){
-    item.className = name;
-  }
-
-  return parent.appendChild(item);
-}
-
-
-function elementText(name, text){
-  return name.innerHTML = text;
-}
 
 
 

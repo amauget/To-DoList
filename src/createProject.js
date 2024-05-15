@@ -1,45 +1,105 @@
-function createProject(bodyContainer){
- initLocalStorage()
- 
+const{DOMObjects, elementText} = require('./createDOM');
+
+/*  DOMObjects(elementType,name, parent) */
+  /* elementText(name, text) */
+
+function populateProject(projectObj){
+  appendtoSidebar(projectObj);
+  projectLayout(projectObj);
+}
+/*   
+   create DOM items:
+      project container
+        Project title: object.name
+        
+        project details container:
+          due date: object.due
+          priority: object.priority
+          priority.background condition based on which choice is made.
+
+          Edit Project button:
+            popup: 
+              title: edit project
+              project name: ____
+              due: ___
+              priority: ____
+
+              submit btn
+              cancel btn */
+function appendtoSidebar(projectObj){
+  let ul = document.querySelector('.projectList');
+  let li = DOMObjects('li', 'projectListItem', ul);
+  elementText(li, projectObj.name);
+  li.value = projectObj;
 }
 
-function initLocalStorage(projectName, dueDate, priorityRating){
-  let projectObj = {
-    name: projectName,
-    due: dueDate,
-    priority: priorityRating,
-  } 
-  //stringify before commiting to local storage...
-}
-function processForm(name, dueDate, priority){
-  name = name.value;
-  dueDate = dueDate.value;
-  priority = priority.value;
-  initLocalStorage(name,dueDate,priority)
+function projectLayout(projectObj){ 
+  
+  let bodyContainer = document.querySelector('.bodyContainer');
 
-}
+  let projectContainer = DOMObjects('div', 'projectContainer', bodyContainer);
+  
+  //Actual Header
+  let projectTitle = DOMObjects('h2', 'projectTitle', projectContainer);
+  elementText(projectTitle, projectObj.name);
 
-function toDo(){
+  //Header Container
+  let projectDetails = DOMObjects('div', 'projectDetails', projectContainer);
 
-}
-function done(){
+  let dueDate = DOMObjects('h4', 'projectDue', projectDetails);
+  elementText(dueDate, `Due: ${projectObj.due}`);
 
-}
-export default processForm;
+  let priority = DOMObjects('h4', 'priorityTitle', projectDetails);
+  elementText(priority, `Priority: ${projectObj.priority}`);
+  priority.style.background = priorityBackground(projectObj.priority)
 
- /* 
-  Initiate popup:
-    project name:
-    dueDate:
-    "add to-do item":
-    
-      To do Item:
-        to-do name:
-        due date:
-        priority:
-        done toggle (default "not done"):
+  let editProject = DOMObjects('button', 'editProject', projectDetails);
+  elementText(editProject, 'Edit Project Details')
 
-    "create project" button
+  let addTask = DOMObjects('button', 'addTask', projectContainer);
+  elementText(addTask, 'Add a Task');
+
+  addTask.addEventListener('click',() =>{
+    toDoForm();
+  })
+
+  function priorityBackground(priority){
+    let background = '';
+    if(priority === 'low'){
+      background = 'green';
+    }
+    else if(priority === 'medium'){
+      background = 'yellow';
+    }
+    else{
+      background = 'red';
+    }
+    return background;
+  }
+  //Add To-Do:
+
+
+
+         /* Add To-Do Item button:
+            popup:
+              title: New To-Do Item
+              Task:
+              due:
+              note:
+              priority:
+              Completed Status: to-do, started, completed
+          
+          To-Do Append Container:
+            card-style appearance similar to libarary project
+          
+          Completed items container:
+            append if completed status permits.
+            Allow completed status change. (3 buttons?)
 
 
   */
+}
+
+module.exports = {
+  populateProject
+}
