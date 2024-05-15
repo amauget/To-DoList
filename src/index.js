@@ -1,31 +1,38 @@
 const{projectForm, resetInputs} = require('./projectForm');
-const{ parseData, storeItems, retreiveSideBar} = require('./dataStorage');
+const{ parseData, storeItems, projectList} = require('./dataStorage');
 const{populateProject} = require('./createProject');
 const{DOMObjects, elementText} = require('./createDOM');
+/* DOMOjects(element, class, parent), elementText(item, text) */
 import './stylesheets/style.css';
 
 
 
-function initiate(){
+function initiatePage(){
   let body = document.querySelector('body');
+  let bodyContainer = DOMObjects('div', 'bodyContainer', body);
+
+  let sideBarContainer = DOMObjects('div', 'sideBarContainer', bodyContainer);
+  
+  //delegate page construction
+  header(bodyContainer);
+  sideBar(sideBarContainer);
+  projectSpace(bodyContainer);
+
+  let hiddenContainer = projectForm(bodyContainer); /* Container is the parent of the add project form */
+  pageButtons(hiddenContainer, sideBarContainer)
 
   //TEMPORARY CACHE CLEAR BUTTON:
   let clearCache = document.querySelector('.clearCache');
   clearCache.addEventListener('click',() =>{
     localStorage.clear();
+    
   })
 
-  let bodyContainer = DOMObjects('div', 'bodyContainer', body);
+}
 
-  let sideBarContainer = DOMObjects('div', 'sideBarContainer', bodyContainer);
-
-  //routing page construction
-  header(bodyContainer);
-  sideBar(sideBarContainer);
-  
+function pageButtons(hiddenContainer, sideBarContainer){
   let addProject = document.querySelector('.addProject');
-
-  let hiddenContainer = projectForm(bodyContainer)
+  
 
   addProject.addEventListener('click',() => {
     hiddenContainer.style.display = 'block';
@@ -33,17 +40,14 @@ function initiate(){
 
   let submit = document.querySelector('.submitBtn');
   submit.addEventListener('click',()=>{
-    // parseData(); /* assigns value to items and passes to proj obj creater */
-    let projectObj = parseData();
-    populateProject(projectObj);
-    storeItems(projectObj)
-
+    let projectInfo = parseData();     /* assigns value to items and creates project object */
+    populateProject(projectInfo);
+    
+    storeItems(projectInfo); projectList()
 
     resetInputs();
     hiddenContainer.style.display = 'none';
   })
-
-
 
   let cancel = document.querySelector('.cancelBtn');
   cancel.addEventListener('click',()=>{
@@ -52,6 +56,17 @@ function initiate(){
     resetInputs();
   })
 
+
+  let li = sideBarContainer.querySelectorAll('li');
+
+  li.forEach((item) =>{
+    item.addEventListener('click',() =>{
+      let name = item.textContent;
+      // console.log('works')
+      // console.log(typeof(name))
+      populateProject(name)
+    })
+  })
   
 }
 //Page Element Constants:
@@ -72,26 +87,17 @@ function sideBar(sideBarContainer){
   const addProject = DOMObjects('button', 'addProject', sideBarContainer);
   elementText(addProject, 'Add Project');
 
-  retreiveSideBar(ul)
+  projectList();
+}
 
-  let li = document.querySelectorAll('li');
-  li.forEach((item) =>{
-    item.addEventListener('click',() =>{
-      let name = li.elementText;
-      console.log(name)
-    })
-  })
- 
+function projectSpace(bodyContainer){
+  let projectContainer =  DOMObjects('div', 'projectContainer', bodyContainer);
+  
 }
 
 
-//FACTORY FUNCTIONS
 
-
-
-
-
-initiate();
+initiatePage();
 
 
 console.trace();  

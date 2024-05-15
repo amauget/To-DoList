@@ -1,97 +1,68 @@
+const{DOMObjects, elementText} = require('./createDOM');
+
+/* refactor cut 36 lines of code. */
 function projectForm(bodyContainer){
-  let hiddenContainer= createEl('div', 'hiddenContainer');
 
-  let form = createEl('div', 'form');
+  let hiddenContainer = DOMObjects('div', 'hiddenContainer', bodyContainer);
 
-  let title = createEl('h3', 'formTitle');
-  title.textContent = 'Create a New Project';
+  let form = DOMObjects('div', 'form', hiddenContainer);
 
-  let nameInput = createEl('input', 'nameInput');
-  nameInput.required = true;
+  let title = DOMObjects('h3', 'formTitle', form);
+  elementText(title, 'Create a New Project');
 
-  let nameLabel = createEl('label', 'formLabel');
-  labelFor(nameLabel, nameInput.id);
-  nameLabel.textContent = 'Project Name: ';
-  
-  let dueInput = createEl('input', 'dueDateInput');
-  dueInput.setAttribute('type', 'date');
-  dueInput.required = true;
+  let nameInput = new InputComponents('text', 'nameInput', 'Project Name:');
+  nameInput.makeInput(form);
 
-  let dueDateLabel = createEl('label','formLabel' );
-  labelFor(dueDateLabel, dueInput.id);
-  dueDateLabel.textContent = 'Due Date: ';
+  let dateInput = new InputComponents('date', 'dueDateInput', 'Due Date:');
+  dateInput.makeInput(form);
 
-  let priorityContainer = createEl('div', 'priorityContainer');
+  let priorityContainer = DOMObjects('div', 'priorityContainer', form);
 
-  let priorityLabel = createEl('label', 'priorityLabel')
-  
-  priorityLabel.textContent = 'Priority:';
-  priorityContainer.append(priorityLabel)
+  let priorityLabel = DOMObjects('label', 'priorityLabel', priorityContainer);
+  elementText(priorityLabel, 'Priority:');
 
   //priority radio components:
-  let low = new PriorityRadio('Low ', 'low');
-  let med = new PriorityRadio('Medium ', 'medium');
-  let high = new PriorityRadio('High ', 'high');
-  low.radioDOMItem(priorityContainer); med.radioDOMItem(priorityContainer); high.radioDOMItem(priorityContainer);
+  let low = new InputComponents('radio','low', 'Low:');
+  let med = new InputComponents('radio','medium', 'Medium: ');
+  let high = new InputComponents('radio','high', 'High: ');
+  low.makeInput(priorityContainer); med.makeInput(priorityContainer); high.makeInput(priorityContainer);
 
-  let btnContainer = createEl('div', 'btnContainer');
+  let btnContainer = DOMObjects('div', 'btnContainer', form);
 
-  let submit = createEl('button', 'submitBtn');
-  submit.textContent = 'Submit';
+  let submitBtn = DOMObjects('button','submitBtn', btnContainer);
+  elementText(submitBtn, 'Submit');
 
-  let cancel = createEl('button', 'cancelBtn');
-  cancel.textContent = 'Cancel';
+  let cancelBtn = DOMObjects('button', 'cancelBtn', btnContainer);
+  elementText(cancelBtn, 'Cancel');
 
-  btnContainer.append(submit, cancel);
-
-  form.append(title, nameLabel, nameInput, dueDateLabel, dueInput, priorityContainer , btnContainer);
-
-  hiddenContainer.append(form);
- 
   bodyContainer.append(hiddenContainer);
 
+  
   return hiddenContainer;
 }
 
-function createEl(element, name){
-  let item = document.createElement(element);
-  
-  if(element !== 'label'){
-    item.className = name;
-    item.setAttribute('id',name);
-  } 
-
-  return item;
-}
-
-function labelFor(label,inputId){
-  return label.setAttribute('for', inputId);
-}
-
-class PriorityRadio{
-  constructor(text, nameClass){
-    this.container = createEl('div', 'choiceContainer');
-    this.label =  createEl('label', 'radioLabel');
-    this.input = createEl('input', nameClass);
-    this.text = text;
-    this.name = 'priority'
-    this.value = nameClass;
+class InputComponents{ 
+  constructor(inputType, inputId, labelText){
+    this.inputType = inputType;
+    this.inputId = inputId;
+    this.labelText = labelText;
   }
-  radioDOMItem(priorityContainer){
-    let choiceContainer = createEl('div', 'choiceContainer');
-    this.label.textContent = this.text;
+  makeInput(container){
 
-    this.input.setAttribute('type', 'radio');
-    this.input.name = this.name; /* uniform names disallow multiple selection */
-    this.input.value = this.value;
-    
-    choiceContainer.append(this.label, this.input)
+    let label = document.createElement('label');
+    label.for = this.inputId;
+    label.textContent = this.labelText;
 
-    priorityContainer.append(choiceContainer)
+    let input = document.createElement('input');
+    input.type = this.inputType;
+    input.id = this.inputId;
+    input.className = this.inputId;
+
+    return container.append(label, input);
     
-    return choiceContainer;
   }
 }
+
 function resetInputs(){
   let formInputs = document.querySelectorAll('input');
   
@@ -108,4 +79,5 @@ function resetInputs(){
 module.exports = {
   projectForm,
   resetInputs,
+  InputComponents,
 }  
