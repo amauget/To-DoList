@@ -1,5 +1,5 @@
 const{projectForm, resetInputs} = require('./projectForm');
-const{ parseData, storeItems, projectList} = require('./dataStorage');
+const{parseData, storeItems, projectList} = require('./dataStorage');
 const{populateProject} = require('./createProject');
 const{DOMObjects, elementText} = require('./createDOM');
 /* DOMOjects(element, class, parent), elementText(item, text) */
@@ -16,8 +16,7 @@ function initiatePage(){
   //delegate page construction
   header(bodyContainer);
   sideBar(sideBarContainer);
-  projectSpace(bodyContainer);
-
+  projectSpace(bodyContainer)
   let hiddenContainer = projectForm(bodyContainer); /* Container is the parent of the add project form */
   pageButtons(hiddenContainer, sideBarContainer)
 
@@ -31,6 +30,7 @@ function initiatePage(){
 }
 
 function pageButtons(hiddenContainer, sideBarContainer){
+
   let addProject = document.querySelector('.addProject');
   
 
@@ -40,13 +40,32 @@ function pageButtons(hiddenContainer, sideBarContainer){
 
   let submit = document.querySelector('.submitBtn');
   submit.addEventListener('click',()=>{
-    let projectInfo = parseData();     /* assigns value to items and creates project object */
-    populateProject(projectInfo);
-    
-    storeItems(projectInfo); projectList()
 
-    resetInputs();
-    hiddenContainer.style.display = 'none';
+    let projectInfo = parseData();     /* assigns value to items and creates project object */
+    if(projectInfo.name === '' || projectInfo.dueDate === '' || projectInfo.priority === undefined){ 
+      /* NOTE: THIS CHUNK OF CODE ISN'T GREAT. IT HIGHLIGHTS FILLED OUT INPUTS IF ANY ARE MISSING. 
+          IT ALSO LACKS AUTOMATION.
+     */
+      let name = document.querySelector('.nameInput');
+      let date = document.querySelector('.dueDateInput');
+      let priority = document.querySelector('.priorityContainer');
+
+      let red = 'red solid 2px'
+
+      name.style.border = red;
+      date.style.border = red;
+      priority.style.border = red;
+      alert('Please fill out the required fields before submitting')
+    }
+    else{
+      populateProject(projectInfo);
+    
+      storeItems(projectInfo); projectList()
+  
+      resetInputs();
+      hiddenContainer.style.display = 'none';
+    }
+   
   })
 
   let cancel = document.querySelector('.cancelBtn');
@@ -61,8 +80,8 @@ function pageButtons(hiddenContainer, sideBarContainer){
 
   li.forEach((item) =>{
     item.addEventListener('click',() =>{
+      console.log('list event triggered')
       let name = item.textContent;
-      // console.log('works')
       // console.log(typeof(name))
       populateProject(name)
     })

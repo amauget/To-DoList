@@ -2,6 +2,7 @@ const{DOMObjects, elementText} = require('./createDOM');
 
 function parseData(){
   let projectName = document.querySelector('.nameInput').value;
+
   let dueDate = dateFormat();
 
   let priorityRating = undefined;
@@ -25,11 +26,18 @@ function parseData(){
 
 function dateFormat(){
   let dueDate = document.querySelector('.dueDateInput').value;
-  /*DUE DATE INDEXES: 0-3 year, 4 slash, 5-6 month, 7 slash, 8-9 day */
-  let dueDateIndex = [5,6,4,8,9,7,0,1,2,3];
+  console.log(dueDate);
+
   let dateString = ``;
-  for(i of dueDateIndex){
-   dateString += `${dueDate[i]}`;
+
+  if(dueDate !== ''){
+
+    let dueDateIndex = [5,6,4,8,9,7,0,1,2,3];
+      /*DUE DATE INDEXES:  5-6 month, 4 slash, 8-9 day, 7 slash, 0-3 year, */
+
+    for(i of dueDateIndex){
+      dateString += `${dueDate[i]}`;
+    }
   }
   return dateString;
 }

@@ -62,7 +62,7 @@ function projectButtons(editBtn, addTask){
   //ADD events for edit, delete, add to-do, etc
 }
 function editProject(projectObj){
-  console.log(projectObj.due) /* 0-3 YEAR, 4 SLASH, 5-6 MONTH, 7 SLASH, 8-9 DAY */
+  console.log(projectObj.due) 
   /* CURRENT DATE FORMAT IS YEAR MONTH DAY. FIGURE OUT HOW TO CHANGE */
 
 
