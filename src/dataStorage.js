@@ -49,20 +49,46 @@ function storeItems(projectObj){
 
   localStorage.setItem(storageName, projectString);
 }
-function projectList(){
-  let ul = document.querySelector('.projectList');
-  ul.innerHTML = '';
-  let nameArray = []; /* Array to append all key names */
-  for (let i = 0; i < localStorage.length; i++){
+function projectList(){ /* rewrite to sort based on due date */
 
+  let ul = document.querySelector('.projectList');
+  ul.innerHTML = ''; 
+  let dataArray = []; /* Array to append all key names */
+  for (let i = 0; i < localStorage.length; i++){
     let keyName = localStorage.key(i);
-    nameArray.push(keyName);
+    let dueDate = JSON.parse(localStorage.getItem(keyName));
+    dataArray.push(dueDate);
   }
-  nameArray = nameArray.sort(); /* alphabetize before creating list */
-  for (item of nameArray){
-    let li = DOMObjects('li', 'sideBarList', ul);
-    elementText(li, item);
+  
+  let parseDate = (dateStr) => {
+    let [month, day, year] = dateStr.split('-');
+    return new Date(year, month - 1, day); // Months are 0-based
   }
+  dataArray.sort((a, b) => parseDate(a.due) - parseDate(b.due));
+
+  let formatDate = (date) => {
+    let month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based
+    let day = date.getDate().toString().padStart(2, '0');
+    let year = date.getFullYear();
+
+    return `${month}/${day}/${year}`;
+  }
+
+  // Access each object and format its due date
+  dataArray.forEach(item => {
+    let dueDate = parseDate(item.due);
+    let formattedDate = formatDate(dueDate);
+
+    let li = DOMObjects('li','sideBarList', ul);
+
+    let name = DOMObjects('p', 'projectListName', li);
+    elementText(name,item.name )
+    
+
+    let due = DOMObjects('p', 'projectListDue', li);
+    elementText(due, formattedDate);
+      
+  });
     return ul;
 }
 

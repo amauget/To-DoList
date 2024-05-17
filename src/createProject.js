@@ -3,11 +3,11 @@ const{DOMObjects, elementText} = require('./createDOM')
   /* elementText(name, text) */
 const{InputComponents, projectForm} =  require('./projectForm');
 
-function populateProject(projectInfo){
+function populateProject(projectInfo, projectContainer){
   if(typeof(projectInfo)=== 'string'){ /* condition when side bar list is clicked. */
     projectInfo = retreiveProject(projectInfo);
   }  
-  projectLayout(projectInfo); /* retreiving info from form submission */
+  projectLayout(projectInfo, projectContainer); /* retreiving info from form submission */
 
 }
 
@@ -17,14 +17,12 @@ function retreiveProject(projectName){
   return projectObj;
 }
 
-function projectLayout(projectObj){ 
- 
-  let projectContainer = document.querySelector('.projectContainer');
+function projectLayout(projectObj, projectContainer){ 
  
   projectContainer.innerHTML = ''; /* reset content every execution */
 
   //Header Container and Items
-  let projectDetails = DOMObjects('div', 'projectDetails', projectContainer);
+  let projectDetails = DOMObjects('div', 'projectDetails', projectContainer);   /* TURN ALL OF THIS INTO A CLASS AND REFERENCE IN EDIT PROJECT FUNCTION */
 
   let projectTitle = DOMObjects('h2', 'projectTitle', projectDetails);
   elementText(projectTitle, projectObj.name);
@@ -34,17 +32,22 @@ function projectLayout(projectObj){
   elementText(dueDate, `Due: ${projectObj.due}`);
 
   let priority = DOMObjects('h4', 'priorityTitle', projectDetails);
-  elementText(priority, `Priority: ${projectObj.priority}`);
-  priority.style.background = priorityBackground(projectObj.priority)
+
+  let priorityValue = projectObj.priority;
+  if(priorityValue === undefined){
+    priorityValue = 'Unspecified'
+  }
+  
+  elementText(priority, `Priority: ${priorityValue}`);
+  priority.style.background = priorityBackground(priorityValue);
 
   let editBtn = DOMObjects('button', 'editProject', projectDetails);
-  elementText(editBtn, 'Edit Project Details')
+  elementText(editBtn, 'Edit Project Details');
 
   let addTask = DOMObjects('button', 'addTask', projectDetails);
   elementText(addTask, 'Add a Task');
 
-
-  projectButtons(editBtn, addTask, projectObj)
+  projectButtons(editBtn, addTask, projectObj);
   
 }
 
@@ -62,35 +65,11 @@ function projectButtons(editBtn, addTask){
   //ADD events for edit, delete, add to-do, etc
 }
 function editProject(projectObj){
-  console.log(projectObj.due) 
-  /* CURRENT DATE FORMAT IS YEAR MONTH DAY. FIGURE OUT HOW TO CHANGE */
-
-
-  // let projectContainer = document.querySelector('.projectContainer')
-  
-  // let form = document.querySelector('.form');
-
-  // let editForm = form.cloneNode(true); /* creates an editable copy of form */
-  // editForm.className = 'editForm'
-
-  // let title = document.querySelector('.formTitle');
-  // title.textContent = 'Edit Project'
-  // let inputs = editForm.querySelectorAll('input');
-  // inputs.forEach(input => {
-  //   if(input.type === 'text'){
-  //     input.value = projectObj.name;
-  //   }
-  //   else if(input.type === 'date'){
-  //     input.value = projectObj.due;
-  //   }
-  //   else{
-  //     if(projectObj.priority === input.className){
-  //       input.checked = true;
-  //     }
-  //   }
-  // })
-  // projectContainer.append(editForm);
-  // return inputs;
+  let prjDetails = document.querySelector('.projectDetails');
+  /* Guarantee there is a library for this.. */
+  let prjDetailsForm = prjDetails.cloneNode(true);
+  console.log(prjDetails) 
+ 
 }
 
 function appendToDo(){
@@ -103,40 +82,20 @@ function appendToDo(){
  
 function priorityBackground(priority){
   let background = '';
-  if(priority === 'low'){
+  if(priority === 'Low'){
     background = 'green';
   }
-  else if(priority === 'medium'){
+  else if(priority === 'Medium'){
     background = 'yellow';
   }
-  else{
+  else if (priority === 'High'){
     background = 'red';
+  }
+  else{
+    background = 'white'
   }
   return background;
 }
-  //Add To-Do:
-
-
-
-         /* Add To-Do Item button:
-            popup:
-              title: New To-Do Item
-              Task:
-              due:
-              note:
-              priority:
-              Completed Status: to-do, started, completed
-          
-          To-Do Append Container:
-            list format with undo button
-          
-          Completed items container:
-            append if completed status permits.
-            Allow completed status change. (3 buttons?)
-
-
-  */
-
 
 module.exports = {
   populateProject

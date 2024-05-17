@@ -1,4 +1,4 @@
-const{projectForm, resetInputs} = require('./projectForm');
+const{projectForm, resetInputs,requiredInputs, duplicateCheck} = require('./projectForm');
 const{parseData, storeItems, projectList} = require('./dataStorage');
 const{populateProject} = require('./createProject');
 const{DOMObjects, elementText} = require('./createDOM');
@@ -11,14 +11,15 @@ function initiatePage(){
   let body = document.querySelector('body');
   let bodyContainer = DOMObjects('div', 'bodyContainer', body);
 
-  let sideBarContainer = DOMObjects('div', 'sideBarContainer', bodyContainer);
+  let sideBarContainer = sideBar(bodyContainer);
   
-  //delegate page construction
-  header(bodyContainer);
-  sideBar(sideBarContainer);
-  projectSpace(bodyContainer)
+  let projectContainer = projectSpace(bodyContainer);
+  
+  header(bodyContainer); /* Header is static, so it's called and not valued. */
+
   let hiddenContainer = projectForm(bodyContainer); /* Container is the parent of the add project form */
-  pageButtons(hiddenContainer, sideBarContainer)
+  
+  pageButtons(hiddenContainer, sideBarContainer, projectContainer)
 
   //TEMPORARY CACHE CLEAR BUTTON:
   let clearCache = document.querySelector('.clearCache');
@@ -29,89 +30,103 @@ function initiatePage(){
 
 }
 
-function pageButtons(hiddenContainer, sideBarContainer){
+function pageButtons(hiddenContainer, sideBarContainer, projectContainer){
 
   let addProject = document.querySelector('.addProject');
   
-
   addProject.addEventListener('click',() => {
     hiddenContainer.style.display = 'block';
   });
 
+  //side bar list
+  let sideBarList = () =>{
+    let li = sideBarContainer.querySelectorAll('.sideBarList');
+    
+
+    li.forEach((item) =>{ 
+      
+      item.addEventListener('click',() =>{
+        let name = item.querySelector('.projectListName').textContent;
+        populateProject(name,projectContainer);
+
+        // names.forEach((name) => {
+        //   console.log(name.textContent)
+        //  
+        // })
+        
+
+        
+      })
+    })
+  };
+  sideBarList()
+  
+  // form events
   let submit = document.querySelector('.submitBtn');
   submit.addEventListener('click',()=>{
 
-    let projectInfo = parseData();     /* assigns value to items and creates project object */
-    if(projectInfo.name === '' || projectInfo.dueDate === '' || projectInfo.priority === undefined){ 
-      /* NOTE: THIS CHUNK OF CODE ISN'T GREAT. IT HIGHLIGHTS FILLED OUT INPUTS IF ANY ARE MISSING. 
-          IT ALSO LACKS AUTOMATION.
-     */
-      let name = document.querySelector('.nameInput');
-      let date = document.querySelector('.dueDateInput');
-      let priority = document.querySelector('.priorityContainer');
+    let nameInput = document.querySelector('.nameInput');
+    let dateInput = document.querySelector('.dueDateInput');
 
-      let red = 'red solid 2px'
+    let required = requiredInputs(nameInput, dateInput); /* verifies form inputs are filled out */
+    let duplicated = duplicateCheck(nameInput); /* compares name input to current projects. */
+     
+    if(required === true && duplicated === false){ /* BUG ISOLATED TO BELOW THIS CONDITION... */
+      let projectInfo = parseData();  /* converts form inputs into object */
 
-      name.style.border = red;
-      date.style.border = red;
-      priority.style.border = red;
-      alert('Please fill out the required fields before submitting')
-    }
-    else{
-      populateProject(projectInfo);
-    
-      storeItems(projectInfo); projectList()
-  
-      resetInputs();
+      populateProject(projectInfo, projectContainer);
+
+      storeItems(projectInfo); 
+      
+      projectList()/* appends to sidebar */
+      
+      resetInputs(); 
+
       hiddenContainer.style.display = 'none';
-    }
-   
-  })
-
-  let cancel = document.querySelector('.cancelBtn');
-  cancel.addEventListener('click',()=>{
+      
+      sideBarList(); /* calls again to update 'li' definition */
+    };
+  });
+  
+  let cancel = document.querySelector('.cancelBtn'); 
+  cancel.addEventListener('click',()=>{ /* This works */
 
     hiddenContainer.style.display = 'none';
     resetInputs();
   })
 
-
-  let li = sideBarContainer.querySelectorAll('li');
-
-  li.forEach((item) =>{
-    item.addEventListener('click',() =>{
-      console.log('list event triggered')
-      let name = item.textContent;
-      // console.log(typeof(name))
-      populateProject(name)
-    })
-  })
   
 }
 //Page Element Constants:
 
 function header(bodyContainer){
-  const header = DOMObjects('h1', 'header', bodyContainer);
-  
+  let header = DOMObjects('h1', 'header', bodyContainer);
   elementText(header, 'To-Do List!');
 }
 
-function sideBar(sideBarContainer){
-  const sideBarHeader = DOMObjects('div', 'sideBarHeader', sideBarContainer);
-  
-  const sideBarTitle = DOMObjects('h2', 'sideBarTitle', sideBarHeader);
-  elementText(sideBarTitle, 'Projects');
+function sideBar(bodyContainer){
+  let sideBarContainer = DOMObjects('div', 'sideBarContainer', bodyContainer);
 
-  const ul = DOMObjects('ul', 'projectList', sideBarContainer);
-  const addProject = DOMObjects('button', 'addProject', sideBarContainer);
+  let sideBarHeader = DOMObjects('div', 'sideBarHeader', sideBarContainer);
+  
+  let projectTitle = DOMObjects('h5', 'sideBarProjectTitle', sideBarHeader);
+  elementText(projectTitle, 'Projects');
+
+  let dueTitle = DOMObjects('h5', 'sideBarDueTitle', sideBarHeader);
+  elementText(dueTitle, 'Due')
+
+  let ul = DOMObjects('ul', 'projectList', sideBarContainer);
+  let addProject = DOMObjects('button', 'addProject', sideBarContainer);
   elementText(addProject, 'Add Project');
 
   projectList();
+
+  return sideBarContainer;
 }
 
 function projectSpace(bodyContainer){
   let projectContainer =  DOMObjects('div', 'projectContainer', bodyContainer);
-  
+  return projectContainer;
 }
 
 

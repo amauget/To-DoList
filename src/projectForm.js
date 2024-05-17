@@ -22,9 +22,9 @@ function projectForm(bodyContainer){
   elementText(priorityLabel, 'Priority:');
 
   //priority radio components:
-  let low = new InputComponents('radio','low', 'Low:');
-  let med = new InputComponents('radio','medium', 'Medium: ');
-  let high = new InputComponents('radio','high', 'High: ');
+  let low = new InputComponents('radio','Low', 'Low:');
+  let med = new InputComponents('radio','Medium', 'Medium: ');
+  let high = new InputComponents('radio','High', 'High: ');
   low.makeInput(priorityContainer); med.makeInput(priorityContainer); high.makeInput(priorityContainer);
 
   let btnContainer = DOMObjects('div', 'btnContainer', form);
@@ -36,7 +36,6 @@ function projectForm(bodyContainer){
   elementText(cancelBtn, 'Cancel');
 
   bodyContainer.append(hiddenContainer);
-
   
   return hiddenContainer;
 }
@@ -58,6 +57,10 @@ class InputComponents{
     input.id = this.inputId;
     input.className = this.inputId;
 
+    if(input.type ==='radio'){
+      input.name = 'priority'
+    }
+
     return container.append(label, input);
     
   }
@@ -69,6 +72,7 @@ function resetInputs(){
     formInputs.forEach(function(input){
       if(input.type === 'text' || input.type === 'date'){
         input.value = '';
+        input.style.border = 'none'
       }
       else{
         input.checked = false;
@@ -76,8 +80,42 @@ function resetInputs(){
     })
 }
 
+function requiredInputs(nameInput, dateInput){
+  nameInput.style.border = 'none';
+  
+  dateInput.style.border = 'none';
+
+  if(nameInput.value === ''){
+    nameInput.style.border = 'red solid 2px';
+  }
+  
+  if(dateInput.value === ''){
+    dateInput.style.border = 'red solid 2px';
+  }
+
+  if(nameInput.value !== '' && dateInput.value !== ''){
+    return true;
+  }
+}
+function duplicateCheck(nameInput){
+  let sideBarContainer = document.querySelector('.sideBarContainer');
+  let projects = sideBarContainer.querySelectorAll('li');
+
+  projects.forEach(project =>{
+    if(nameInput.value === project.textContent){
+      alert(`${project.textContent} already exists.`);
+      resetInputs();
+      return true
+    }
+
+  })
+  return false;
+}
+
 module.exports = {
   projectForm,
-  resetInputs,
   InputComponents,
+  resetInputs,
+  requiredInputs,
+  duplicateCheck
 }  
