@@ -41,19 +41,12 @@ function pageButtons(hiddenContainer, sideBarContainer, projectContainer){
   //side bar list
   let sideBarList = () =>{
     let li = sideBarContainer.querySelectorAll('.sideBarList');
-    
-
+   
     li.forEach((item) =>{ 
       
       item.addEventListener('click',() =>{
         let name = item.querySelector('.projectListName').textContent;
-        populateProject(name,projectContainer);
-
-        // names.forEach((name) => {
-        //   console.log(name.textContent)
-        //  
-        // })
-        
+        populateProject(name, projectContainer);
 
         
       })
@@ -70,9 +63,19 @@ function pageButtons(hiddenContainer, sideBarContainer, projectContainer){
 
     let required = requiredInputs(nameInput, dateInput); /* verifies form inputs are filled out */
     let duplicated = duplicateCheck(nameInput); /* compares name input to current projects. */
+    
+    let priorityRadioBtns = document.querySelectorAll('input[type="radio"]');
+
+    let priorityRating = undefined;
+
+    priorityRadioBtns.forEach(item => {
+      if(item.checked){
+        return priorityRating = item.className;
+      }
+    })
      
     if(required === true && duplicated === false){ /* BUG ISOLATED TO BELOW THIS CONDITION... */
-      let projectInfo = parseData();  /* converts form inputs into object */
+      let projectInfo = parseData(nameInput, dateInput, priorityRating);  /* converts form inputs into object */
 
       populateProject(projectInfo, projectContainer);
 

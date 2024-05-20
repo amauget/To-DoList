@@ -1,19 +1,9 @@
 const{DOMObjects, elementText} = require('./createDOM');
 
-function parseData(){
-  let projectName = document.querySelector('.nameInput').value;
+function parseData(nameInput, dateInput, priorityRating){
+  let projectName = nameInput.value;
+  let dueDate = dateFormat(dateInput.value);
 
-  let dueDate = dateFormat();
-
-  let priorityRating = undefined;
-  
-  let priorityRadioBtns = document.querySelectorAll('input[type="radio"]');
-
-  priorityRadioBtns.forEach(item => {
-    if(item.checked){
-      return priorityRating = item.className;
-    }
-  })
   //Create Project Object for Storage
   let projectObj = {
     name: projectName,
@@ -24,10 +14,7 @@ function parseData(){
   return projectObj;
 }
 
-function dateFormat(){
-  let dueDate = document.querySelector('.dueDateInput').value;
-  console.log(dueDate);
-
+function dateFormat(dueDate){
   let dateString = ``;
 
   if(dueDate !== ''){
@@ -48,6 +35,9 @@ function storeItems(projectObj){
   let projectString = JSON.stringify(projectObj);
 
   localStorage.setItem(storageName, projectString);
+}
+function removeProject(key){
+  return localStorage.removeItem(key);
 }
 function projectList(){ /* rewrite to sort based on due date */
 
@@ -92,9 +82,26 @@ function projectList(){ /* rewrite to sort based on due date */
     return ul;
 }
 
+function findStorageIndex(projectName){ /* STILL BUGGY */
+  let index = undefined;
+  let array = []
+  /* project 12: index 0, project 5: index 1 */
+  for(let i = 0; i < localStorage.length; i++){
+    array.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
+  }
+  for(i in array){
+    if(projectName === array[i].name){
+      index = i;
+    }
+  }
+return index;
+  
+}
 
 module.exports = {
   parseData,
   storeItems,
-  projectList
+  projectList,
+  removeProject,
+  findStorageIndex
 }
