@@ -1,36 +1,24 @@
 const{DOMObjects, elementText} = require('./createDOM')/*  DOMObjects(elementType,name, parent)  elementText(name, text) */
-const{InputComponents, projectForm} =  require('./projectForm');
-const{parseData,storeItems, removeProject, projectList, findStorageIndex} = require('./dataStorage');
+const{InputComponents, AlertWindow, resetInputs, createTask} =  require('./projectForm');
+const{parseData,storeItems, removeProject, projectList, retrieveProject} = require('./dataStorage');
 
-function populateProject(projectInfo, projectContainer){
+
+function populateProject(projectInfo){
+  
+  let projectContainer = document.querySelector('.projectContainer');
+  
   if(typeof(projectInfo)=== 'string'){ /* condition when side bar list is clicked. */
-    projectInfo = retreiveProject(projectInfo);
-    
+    projectInfo = retrieveProject(projectInfo);
+
   }  
 
-  let headerObject = headerLayout(projectInfo, projectContainer); /* retreiving info from form submission */
-
-  projectButtons(projectInfo, headerObject);
-}
-
-function projectButtons(projectInfo, headerObject){
+  headerLayout(projectInfo, projectContainer); // populates project header. Defined in index.js for return val.
   
-  let editBtn = headerObject.edit; addTask = headerObject.add;
-
-  editBtn.addEventListener('click',()=> {    
-    
-    let editBtnData = editHeader(headerObject); /* populates edit header, and returns related buttons as Obj */
-    editHeaderEvents(editBtnData, projectInfo);
-  })
-  addTask.addEventListener('click',() =>{
-    console.log('add task')
-    // toDoForm(); 
-  })
-
-}
-function retreiveProject(projectName){
-  let projectObj = JSON.parse(localStorage.getItem(projectName));
-  return projectObj;
+  if(projectInfo.taskObj.length !== 0){
+    taskList(projectInfo);
+  }
+  
+  
 }
 
 function headerLayout(projectObj, projectContainer){ 
@@ -81,6 +69,7 @@ function headerLayout(projectObj, projectContainer){
   return headerObject;
   
 }
+
 function editHeader(headerObject){
   
   let headerContainer = headerObject.container;
@@ -149,78 +138,10 @@ function editHeader(headerObject){
     cancel: cancelBtn,
     priorityValue: priorityValue, 
     titleValue: titleValue,
-    dueValue: dueValue
+    dueValue: dueValue,
   }
   return editBtnData
  
-}
-
-function editHeaderEvents(editBtnData, projectInfo){ /* editButtons are the actual DOM button elements */
- 
-
-  // priority buttons 
-  let low = editBtnData.low;
-  let med = editBtnData.med;
-  let high = editBtnData.high;
-
-  let priorityValue = projectInfo.priority;
-
-  let priorityArray = [low, med, high];
-
-  let changeColor = (selection) =>{
-    for (i of priorityArray){
-      i.style.background = 'white';
-    }
-    selection.style.background = priorityBackground(selection.textContent);
-    return priorityValue = selection.textContent;
-  }
-
-  priorityArray.forEach(item =>{ 
-    item.addEventListener('click',() => {changeColor(item)}) /* need to assign value to priority */
-  });
-
-  //submit & cancel
-  let submit = editBtnData.submit;
-
-  let cancel = editBtnData.cancel;
-
-  let projectContainer = document.querySelector('.projectContainer')
-
-
-  submit.addEventListener('click', () => { /* BUG: if item is named the same as another Item, other item is deleted.. */
-    let newTitle = document.querySelector('.projectTitle');
-    let newTitleValue = newTitle.value;
-
-    let dueDate = document.querySelector('.editDateInput');
-
-    let originalName = projectInfo.name;
-    
-    let OGProjectIndex = findStorageIndex(originalName);
-
-    let checkIndex = findStorageIndex(newTitleValue)
-
-    if(checkIndex !== undefined && OGProjectIndex !== checkIndex){ 
-      /* findStorageIndex finds index of entered title. If newTitle doesn't match any existing: undefined, if index != current, another project has that title already */
-      alert('A project with that name already exists.');
-        
-        titleValue.value = originalName;
-    }
-    else{
-      removeProject(originalName); 
-    
-      let updatedObj = parseData(newTitle, dueDate, priorityValue);
-
-      storeItems(updatedObj);
-
-      projectList();
-
-      populateProject(updatedObj, projectContainer);
-    }
-  })
-  
-  cancel.addEventListener('click',() =>{
-    populateProject(projectInfo, projectContainer)
-  })
 }
 
 function priorityBackground(priority){
@@ -240,7 +161,62 @@ function priorityBackground(priority){
   return background;
 }
 
+function taskList(projectInfo){ 
+  /* 
+  Won't append to project container
+  Need to separate Container so that it is always present despite a lack of tasks.
+  */
+ 
+  let taskObj = projectInfo.taskObj;
+  let projectContainer = document.querySelector('.projectContainer')
+
+  let taskContainer = DOMObjects('div', 'taskContainer', projectContainer);
+
+  let taskTitle = DOMObjects('h3', 'taskTitle', taskContainer);
+  elementText(taskTitle, 'Project Tasks')
+  
+  let ul = DOMObjects('ul', 'taskList', taskContainer)
+ 
+
+  for(let i = 0; i < taskObj.length; i++){
+    
+    let li = DOMObjects('li', 'taskListItem', ul);
+
+    let taskTitle = DOMObjects('p', 'taskTitle', li);
+    elementText(taskTitle, taskObj[i].taskName);
+
+    let taskDue = DOMObjects('p', 'taskDue', li);
+    elementText(taskDue, `By: ${taskObj[i].dueDate}`);
+
+    let comment = DOMObjects('p', 'taskComment', li);
+    elementText(comment, taskObj[i].comment);
+    
+    let deleteTask = DOMObjects('img', 'deleteTask', li);
+    deleteTask.src = './externalContent/trash.svg';
+
+    let editTask = DOMObjects('img', 'editTask', li);
+    editTask.src = './externalContent/gear.svg';
+
+
+  }
+
+
+}
+/*   projectList(ul, dataArray) */
+    
+    
+  
+  
+ 
+
+function populateTaskList(){
+  
+
+}
 
 module.exports = {
-  populateProject
+  populateProject,
+  headerLayout,
+  editHeader,
+  priorityBackground
 }

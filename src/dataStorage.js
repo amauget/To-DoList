@@ -1,6 +1,6 @@
 const{DOMObjects, elementText} = require('./createDOM');
 
-function parseData(nameInput, dateInput, priorityRating){
+function parseData(nameInput, dateInput, thirdInput,task){
   let projectName = nameInput.value;
   let dueDate = dateFormat(dateInput.value);
 
@@ -8,9 +8,10 @@ function parseData(nameInput, dateInput, priorityRating){
   let projectObj = {
     name: projectName,
     due: dueDate,
-    priority: priorityRating
+    priority: thirdInput,
+    taskObj: []
   }
-
+  
   return projectObj;
 }
 
@@ -36,20 +37,21 @@ function storeItems(projectObj){
 
   localStorage.setItem(storageName, projectString);
 }
+
+function retrieveProject(projectName){
+  let projectObj = JSON.parse(localStorage.getItem(projectName));
+  return projectObj;
+}
+
 function removeProject(key){
   return localStorage.removeItem(key);
 }
-function projectList(){ /* rewrite to sort based on due date */
 
-  let ul = document.querySelector('.projectList');
+function projectList(){ /* rewrite to sort based on due date */
+  let ul = document.querySelector('.projectList')
   ul.innerHTML = ''; 
-  let dataArray = []; /* Array to append all key names */
-  for (let i = 0; i < localStorage.length; i++){
-    let keyName = localStorage.key(i);
-    let dueDate = JSON.parse(localStorage.getItem(keyName));
-    dataArray.push(dueDate);
-  }
-  
+  let dataArray = storedDataArray();
+
   let parseDate = (dateStr) => {
     let [month, day, year] = dateStr.split('-');
     return new Date(year, month - 1, day); // Months are 0-based
@@ -81,27 +83,25 @@ function projectList(){ /* rewrite to sort based on due date */
   });
     return ul;
 }
-
-function findStorageIndex(projectName){ /* STILL BUGGY */
-  let index = undefined;
-  let array = []
-  /* project 12: index 0, project 5: index 1 */
-  for(let i = 0; i < localStorage.length; i++){
-    array.push(JSON.parse(localStorage.getItem(localStorage.key(i))));
+function storedDataArray(){
+  let dataArray = []; /* Array to append all key names */ 
+  for (let i = 0; i < localStorage.length; i++){
+    let keyName = localStorage.key(i);
+    let dueDate = JSON.parse(localStorage.getItem(keyName));
+    dataArray.push(dueDate);
   }
-  for(i in array){
-    if(projectName === array[i].name){
-      index = i;
-    }
-  }
-return index;
-  
+  return dataArray;
 }
+
+
+
 
 module.exports = {
   parseData,
   storeItems,
   projectList,
   removeProject,
-  findStorageIndex
+  retrieveProject,
+  storedDataArray,
+  dateFormat
 }
