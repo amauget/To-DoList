@@ -13,11 +13,8 @@ function populateProject(projectInfo){
   }  
 
   headerLayout(projectInfo, projectContainer); // populates project header. Defined in index.js for return val.
-  
-  if(projectInfo.taskObj.length !== 0){
-    taskList(projectInfo);
-  }
-  
+
+
   
 }
 
@@ -26,7 +23,7 @@ function headerLayout(projectObj, projectContainer){
   projectContainer.innerHTML = ''; /* reset content every execution */
 
   //Header Container and Items
-  let headerContainer = DOMObjects('div', 'headerContainer', projectContainer); 
+  let headerContainer = DOMObjects('div', 'headerContainer', projectContainer);
 
   let projectTitle = DOMObjects('h2', 'projectTitle', headerContainer);
   elementText(projectTitle, projectObj.name);
@@ -51,8 +48,8 @@ function headerLayout(projectObj, projectContainer){
   let editBtn = DOMObjects('button', 'editProject', headerContainer);
   elementText(editBtn, 'Edit Project Details');
 
-  let addTask = DOMObjects('button', 'addTask', headerContainer);
-  elementText(addTask, 'Add a Task');
+
+
 
   let headerObject = {
     container: headerContainer,
@@ -61,14 +58,62 @@ function headerLayout(projectObj, projectContainer){
     priority: priority,
     priorityValue: priorityValue,
     deleteProject: deleteProject,
-    edit: editBtn, 
-    add: addTask }
+    edit: editBtn, }
   
-   /* returns headerObject to be referenced in editHeader() */
+    taskLayout(projectObj, projectContainer)
 
-  return headerObject;
+   /* returns headerObject to be referenced in editHeader() */
+   return headerObject;
   
 }
+function taskLayout(projectInfo, projectContainer){
+  let taskContainer = DOMObjects('div', 'taskContainer', projectContainer); /* task area populates as soon as project is loaded. */
+  
+  let taskTitle = DOMObjects('h3', 'taskTitle', taskContainer);
+  elementText(taskTitle, 'Project Tasks')
+
+  let addTask = DOMObjects('button', 'addTask', taskContainer);
+  elementText(addTask, '+ Add Task');
+
+  let listContainer = DOMObjects('div', 'listContainer', taskContainer);
+
+  if(projectInfo.taskObj.length !== 0){
+    listContainer = taskList(projectInfo, listContainer);   
+
+  }
+
+  return projectContainer;
+}
+
+function taskList(projectInfo, listContainer){   
+  let taskObj = projectInfo.taskObj;
+
+  let ul = DOMObjects('ul', 'taskList', listContainer)
+ 
+  for(let i = 0; i < taskObj.length; i++){
+    
+    let li = DOMObjects('li', 'taskListItem', ul);
+
+    let taskTitle = DOMObjects('p', 'taskNameOutput', li);
+    elementText(taskTitle, taskObj[i].taskName);
+
+    let taskDue = DOMObjects('p', 'taskDueOutput', li);
+    elementText(taskDue, `By: ${taskObj[i].dueDate}`);
+
+    let comment = DOMObjects('p', 'taskCommentOutput', li);
+    elementText(comment, taskObj[i].comment);
+    
+    let deleteTask = DOMObjects('img', 'deleteTask', li);
+    // deleteTask.id = taskTitle.textContent;
+    deleteTask.src = './externalContent/trash.svg';
+
+    let editTask = DOMObjects('img', 'editTask', li);
+    editTask.src = './externalContent/gear.svg';
+  }
+ 
+  return listContainer
+}
+
 
 function editHeader(headerObject){
   
@@ -120,11 +165,10 @@ function editHeader(headerObject){
   let submitBtn = DOMObjects('button', 'editHeaderSubmit', headerContainer);
   submitBtn.className = editClass;
   elementText(submitBtn, 'Submit Changes');
-
-  let addClass = (headerObject.add).className;
+  
 
   let cancelBtn = DOMObjects('button','editHeaderCancel', headerContainer);
-  cancelBtn.className = addClass;
+  
   elementText(cancelBtn, 'Discard Changes');
 
   let editPrompt = DOMObjects('h3','editPrompt', headerContainer)
@@ -161,48 +205,7 @@ function priorityBackground(priority){
   return background;
 }
 
-function taskList(projectInfo){ 
-  /* 
-  Won't append to project container
-  Need to separate Container so that it is always present despite a lack of tasks.
-  */
- 
-  let taskObj = projectInfo.taskObj;
-  let projectContainer = document.querySelector('.projectContainer')
 
-  let taskContainer = DOMObjects('div', 'taskContainer', projectContainer);
-
-  let taskTitle = DOMObjects('h3', 'taskTitle', taskContainer);
-  elementText(taskTitle, 'Project Tasks')
-  
-  let ul = DOMObjects('ul', 'taskList', taskContainer)
- 
-
-  for(let i = 0; i < taskObj.length; i++){
-    
-    let li = DOMObjects('li', 'taskListItem', ul);
-
-    let taskTitle = DOMObjects('p', 'taskTitle', li);
-    elementText(taskTitle, taskObj[i].taskName);
-
-    let taskDue = DOMObjects('p', 'taskDue', li);
-    elementText(taskDue, `By: ${taskObj[i].dueDate}`);
-
-    let comment = DOMObjects('p', 'taskComment', li);
-    elementText(comment, taskObj[i].comment);
-    
-    let deleteTask = DOMObjects('img', 'deleteTask', li);
-    deleteTask.src = './externalContent/trash.svg';
-
-    let editTask = DOMObjects('img', 'editTask', li);
-    editTask.src = './externalContent/gear.svg';
-
-
-  }
-
-
-}
-/*   projectList(ul, dataArray) */
     
     
   

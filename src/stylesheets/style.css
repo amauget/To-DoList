@@ -32,8 +32,9 @@ button{
   grid-row: 1/2;
   grid-column: 1/-1;
   font-size: 2.5rem;
-  margin: -2vh;
-  padding:2vh 0;
+  margin:0;
+  margin-top: -2vh;
+  padding-top: 2vh;
   text-align: center;
   border-bottom: 1px solid black;
   
@@ -46,7 +47,6 @@ button{
   display: grid;
   grid-template-rows: min-content minmax(60%, 75%) auto;
   grid-template-columns: 100%;
-
   text-align: center;
 }
 .sideBarHeader{
@@ -62,12 +62,14 @@ button{
 .sideBarContainer .projectList{
   grid-row: 2/3;
   grid-column: 1/3;
+  font-size: 1.5rem;
   padding:0;
   overflow-y: auto;
   
 }
-.sideBarContainer .sideBarHeader{
-  font-size: 1.5rem;
+
+.sideBarContainer h5{
+  font-size: 2rem;
 }
 
 .sideBarContainer .sideBarList{
@@ -101,6 +103,14 @@ button{
   align-self: center;
   justify-self: center;
   width:75%;
+  font-size: 1.3rem;
+}
+.editHeaderCancel{
+  grid-row: 4/5;
+  grid-column: 2/3;
+  width:75%;
+  align-self: center;
+  justify-self: center;
 }
 /* FORM PARENT */
 
@@ -218,9 +228,11 @@ button{
   grid-row: 2/3;
   grid-column: 2/-1;
   height:fit-content;
+  display:grid;
+  grid-template-rows: repeat(2, auto);
 }
 .headerContainer{
-
+  grid-row: 1/2;
   display:grid;
   grid-template-columns: repeat(2, auto);
   grid-template-rows: repeat(4, clamp(2vh, fit-content, 6vh ));
@@ -236,14 +248,14 @@ button{
   grid-row: 1/2;
   grid-column: 1/3;
   justify-self: center;
-  font-size: 1.6rem;
+  font-size: 2rem;
   margin:2vh 0;
   border:none;
   font-weight: bold;
 
 }
 .headerContainer .deleteProject{
-  grid-row: 1/2;
+  grid-row: 4/5;
   grid-column: 2/3;
   justify-self: end;
   align-self: center;
@@ -299,15 +311,11 @@ button{
   grid-column: 1/2;
   align-self: center;
 }
-.headerContainer .editProject, .addTask{
+.headerContainer .editProject{
   width:50%;
   justify-self: center;
 }
-.headerContainer .addTask{
-  grid-row: 4/5;
-  grid-column: 2/3;
-  align-self: center;
-}
+
 .headerContainer .editPrompt{
   grid-row: 5/6;
   grid-column: 1/3;
@@ -321,10 +329,11 @@ button{
 .alertWindow{
   grid-row: 2/3;
   grid-column: 2/3;
-  align-self: center;
+  align-self: start;
   justify-self: center;
   padding: 3vh;
-  background: rgba(255, 255, 255, 0.658);
+  margin-top: 5vh;
+  background: rgb(255, 190, 190);
   border:red solid 3px;
 
 }
@@ -334,44 +343,110 @@ button{
 
 /* Task List */
 .taskContainer{
-  grid-row: 3/4;
-  grid-column: 2/3;
+  grid-row: 2/3;
+  display:grid;
+  grid-template-rows: min-content fit-content min-content;
+  grid-template-columns: auto;
+  margin-top: 10vh;
   justify-self: center;
-  align-self: center;
+  align-self: end;
   background: white;
-  border: solid 5px black;
-  width:80%;
+  border: solid 3px black;
 }
-.taskTitle{
+.taskContainer .listContainer{
+  grid-row: 2/3;
+
+  border-top: solid 3px black;
+  width:70vw;
+  min-height: 50vh;
+}
+.taskContainer .taskTitle{
+  grid-row: 1/2;
+  grid-column: 1/2;
   text-align: center;
+  font-size: 2rem;
+
+}
+.taskContainer .addTask{
+  grid-row: 3/4;
+ 
+  align-self: center;
+  justify-self: center;
+
+  border:none;
+  background-color: white;
+  color: blue;
+  font-size: 1.5rem;
+}
+.addTask:hover{
+  cursor: pointer;
+  color: black;
 }
 .taskContainer .taskList{
   list-style: none;
 }
-.taskList .taskListItem{
-  display:grid;
-  grid-template-rows: auto;
-  grid-template-columns: repeat(2, auto) 10vw;
-}
-.taskListItem .taskTitle{
-  grid-row: 1/2;
-  grid-column: 1/2;
-}
-.taskListItem .taskComment{
+.taskListItem{
   grid-row: 2/3;
   grid-column: 1/3;
-}
-.deleteTask, .editTask{
-  grid-row: 1/3;
-  grid-column: 3/4;
 
-  height:2vh;
+  display:grid;
+  grid-template-rows: auto min-content;
+  grid-template-columns: repeat(2, auto) repeat(2, 3vw);
+  border:solid 1px black;
+  margin:0 2vw;
+  margin-top: 1vh;
+
+}
+.taskListItem .taskNameOutput{
+  grid-row: 1/2;
+  grid-column: 1/2;
+  
+ 
+}
+.taskListItem .taskDueOutput{
+  grid-row: 1/2;
+  grid-column: 2/3;
+}
+.taskListItem .taskNameOutput, .taskListItem .taskDueOutput{
+  font-size: 1.4rem;
+  padding: 1vw;
+  font-weight: bold;
+  margin:0;
+}
+
+.taskListItem .taskCommentOutput{
+  grid-row: 2/3;
+  grid-column: 1/5;
+  overflow-y: auto;
+  text-wrap: wrap;
+  width: 85%;
+  /* min-height: 2.5rem; */
+  align-self: center;
+ 
+  margin:0;
+  padding-bottom: 1vh;
+  margin-left: 1vw;
+  font-size: 1.1rem;
+}
+
+.deleteTask, .editTask{
+  grid-row: 1/2;
+  height:1.8rem;
   width:auto; 
   align-self: center;
-}
-.editTask{
   justify-self: start;
+  /* margin-left: 1vw; */
+
+}
+
+.editTask{
+  grid-column: 3/4;
+  
 }
 .deleteTask{
-  justify-self: end;
+  grid-column:4/5;
+}
+.deleteTask:hover, .editTask:hover{
+  cursor: pointer;
+  height: 2rem;
 }

@@ -5,6 +5,8 @@ class InputComponents{
     this.inputType = inputType;
     this.inputId = inputId;
     this.labelText = labelText;
+    this.input = document.createElement('input');
+
   }
   makeInput(container){
 
@@ -12,17 +14,16 @@ class InputComponents{
     label.for = this.inputId;
     label.textContent = this.labelText;
 
-    let input = document.createElement('input');
-    input.type = this.inputType;
-    input.id = this.inputId;
-    input.className = this.inputId;
+    (this.input).type = this.inputType;
+    (this.input).id = this.inputId;
+    (this.input).className = this.inputId;
 
-    if(input.type ==='radio'){
-      input.name = 'priority'
+    if(this.input.type ==='radio'){
+      this.input.name = 'priority'
     }
 
-    return container.append(label, input);
-    
+    container.append(label, this.input);
+    return container;
   }
 }
 class AlertWindow{
@@ -156,11 +157,42 @@ function createTaskForm(projectInfo){
   
 
 }
+function editTaskForm(taskName, dueDate, comment){
+  let bodyContainer = document.querySelector('.bodyContainer');
+ 
+  
+  let editForm = DOMObjects('div', 'taskForm', bodyContainer);
+
+  let title = DOMObjects('h3', 'formTitle', editForm);
+  elementText(title, `Edit Task`);
+  
+  let editTaskName = new InputComponents('text', 'taskName', 'Task Name: ');
+  editTaskName.makeInput(editForm);
+  (editTaskName.input).value = taskName; 
+
+  let editTaskDate = new InputComponents('date', 'taskDue', 'Task Due: ');
+  editTaskDate.makeInput(editForm);
+  (editTaskDate.input).value = new Date(dueDate).toISOString().substring(0, 10);
+
+  let commentLabel = DOMObjects('p', 'commentLabel', editForm);
+  elementText(commentLabel, 'Comment')
+  
+  let editTaskComment = DOMObjects('textarea', 'taskComment', editForm);
+  editTaskComment.value = comment;
+
+  let submit = DOMObjects('button', 'submitBtn', editForm);
+  elementText(submit, 'submit');
+  let cancel = DOMObjects('button', 'cancelBtn', editForm)
+  elementText(cancel, 'cancel')
+
+  return {editTaskName: editTaskName.input, editTaskDate: editTaskDate.input, editTaskComment: editTaskComment , submit: submit, cancel: cancel}
+}
 
 module.exports = {
   projectForm,
   InputComponents,
   resetInputs,
   AlertWindow,
-  createTaskForm
+  createTaskForm,
+  editTaskForm
 }  

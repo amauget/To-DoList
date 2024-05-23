@@ -1,21 +1,25 @@
 const{DOMObjects, elementText} = require('./createDOM');
 
-function parseData(nameInput, dateInput, thirdInput,task){
+function parseData(nameInput, dateInput, thirdInput,task){ /* task will be undefined until present */
   let projectName = nameInput.value;
   let dueDate = dateFormat(dateInput.value);
+  if(task === undefined){ /* Task is only input into parseData at events "add task" and "edit project" */
+    task = [];
+  }
 
   //Create Project Object for Storage
   let projectObj = {
     name: projectName,
     due: dueDate,
     priority: thirdInput,
-    taskObj: []
+    taskObj: task
   }
   
   return projectObj;
 }
 
 function dateFormat(dueDate){
+
   let dateString = ``;
 
   if(dueDate !== ''){
@@ -93,7 +97,16 @@ function storedDataArray(){
   return dataArray;
 }
 
-
+function deleteTask(taskName, projectInfo){
+  let taskObj = projectInfo.taskObj;
+  for(let i = 0; i < taskObj.length; i++){
+    if(taskName === taskObj[i].taskName){
+      taskObj.splice(i, 1,)
+    }
+  }
+  projectInfo.taskObj = taskObj;
+  return projectInfo;
+}
 
 
 module.exports = {
@@ -103,5 +116,6 @@ module.exports = {
   removeProject,
   retrieveProject,
   storedDataArray,
-  dateFormat
+  dateFormat,
+  deleteTask
 }

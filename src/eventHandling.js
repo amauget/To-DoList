@@ -1,6 +1,6 @@
 const{projectForm, resetInputs, AlertWindow} = require('./projectForm.js');
 const{findStorageIndex, requiredInputs} = require('./verify.js');
-const{populateProject} = require('./createProject.js');
+const{populateProject, editHeader, headerLayout} = require('./createProject.js');
 const{parseData,storeItems, removeProject, projectList, retrieveProject, dateFormat} = require('./dataStorage');
 const{DOMObjects, elementText} = require('./createDOM.js')
 
@@ -58,9 +58,10 @@ function formVerification(nameInput, dateInput, priorityRating){
 
 
 function editProjectSubmit(priorityValue, projectInfo){
+  
 
   let newTitle = document.querySelector('.projectTitle');
-
+  
   let dueDate = document.querySelector('.editDateInput');
 
   let originalName = projectInfo.name;
@@ -69,24 +70,33 @@ function editProjectSubmit(priorityValue, projectInfo){
 
   let checkIndex = findStorageIndex(newTitle.value)
 
-  if(checkIndex !== undefined && OGProjectIndex !== checkIndex){ 
-    /* findStorageIndex -> returns index of newTitle. if undefined, it doesn't exist. */
-    console.log('A project already has that name.')
-    /* create HTML element for all alerts. */
+  if(checkIndex !== undefined && OGProjectIndex !== checkIndex){
+    
+     /* create HTML element for all alerts. */
     newTitle.value = originalName;
+    let nameAlert = new AlertWindow('Another project already has this name. Try something else.');
+    nameAlert.okayAlert();
+    console.log(nameAlert)
+    let okay = (nameAlert.container).querySelector('.okayButton');
+    okay.addEventListener('click', () =>{
+      nameAlert.removeContainer();
+    })
+    return false; 
   }
   else{
     removeProject(originalName); 
   
-    let updatedObj = parseData(newTitle, dueDate, priorityValue);
-
-    
+    let updatedObj = parseData(newTitle, dueDate, priorityValue, projectInfo.taskObj); /* missing task obj */
 
     storeItems(updatedObj);
 
     projectList();
 
     populateProject(updatedObj);
+   
+    return true;
+ 
+
   }
 };
 function removeProjectHandler(areYouSure, projectContainer, projectInfo){
@@ -101,8 +111,6 @@ function removeProjectHandler(areYouSure, projectContainer, projectInfo){
       
 }
 function taskSubmitHandler(projectInfo){
- 
-
   let taskName = document.querySelector('.taskName');
   
   let dueDateInput = document.querySelector('.taskDue');
@@ -119,8 +127,8 @@ function taskSubmitHandler(projectInfo){
       dueDate: dueDate,
       comment: comment
     };
-    projectInfo.taskObj.push(taskObject);
-
+    (projectInfo.taskObj).push(taskObject); 
+    removeProject(projectInfo.name)
     storeItems(projectInfo);
     populateProject(projectInfo)
   }

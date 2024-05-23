@@ -1,5 +1,5 @@
-const{parseData, storeItems, projectList, retrieveProject, removeProject, storedDataArray} = require('./dataStorage');
-const{projectForm, resetInputs, AlertWindow, createTaskForm} = require('./projectForm.js');
+const{storeItems, projectList, retrieveProject, removeProject, deleteTask} = require('./dataStorage');
+const{projectForm, InputComponents, resetInputs, AlertWindow, createTaskForm, editTaskForm} = require('./projectForm.js');
 const{DOMObjects, elementText} = require('./createDOM');
 const{formSubmit, editProjectSubmit, removeProjectHandler, taskSubmitHandler} = require('./eventHandling');
 const{findStorageIndex, requiredInputs} = require('./verify.js');
@@ -21,12 +21,7 @@ function initiatePage(){
   
   allPageEvents(bodyContainer);
 
-  //TEMPORARY CACHE CLEAR BUTTON:
-  let clearCache = document.querySelector('.clearCache');
-  clearCache.addEventListener('click',() =>{
-    localStorage.clear();
-    
-  })
+
 
 }
 
@@ -69,9 +64,12 @@ function allPageEvents(bodyContainer){
     
         populateProject(name);
         projectButtons();
+        taskListEvents();
   
       })
     });
+   
+
     return true;
   }
   function formEvents(){
@@ -108,7 +106,8 @@ function allPageEvents(bodyContainer){
     let headerObject = headerLayout(projectInfo, projectContainer);
 
     let editBtn = headerObject.edit; 
-    let addTask = headerObject.add; 
+
+    let addTask = document.querySelector('.addTask'); 
     
     let deleteBtn = document.querySelector('.deleteProject');
 
@@ -119,12 +118,14 @@ function allPageEvents(bodyContainer){
       
       /* populates edit header, and returns related buttons as Obj */
       
-      editHeaderEvents(editBtnData, projectInfo);
+      editHeaderEvents(editBtnData, projectName);
     })
 
     addTask.addEventListener('click',() =>{
+      let projectInfo = retrieveProject(projectName);
+
       createTaskForm(projectInfo);
-      addTaskEvents(projectInfo);
+      addTaskEvents(projectInfo.name);
       
       
     })
@@ -135,7 +136,8 @@ function allPageEvents(bodyContainer){
       let yes = document.querySelector('.yesButton');
       let no = document.querySelector('.noButton');
       yes.addEventListener('click', () => {
-        
+        let projectInfo = retrieveProject(projectName);
+
         removeProjectHandler(areYouSure, projectContainer, projectInfo);
         
         listEvents();
@@ -151,26 +153,37 @@ function allPageEvents(bodyContainer){
     
   }
   
-  function addTaskEvents(projectInfo){
+  function addTaskEvents(projectName){
     
+
     let taskForm = document.querySelector('.taskForm')
     let submitTask = taskForm.querySelector('.submitBtn');
     let cancelTask = taskForm.querySelector('.cancelBtn');
 
     submitTask.addEventListener('click', () =>{
+      let projectInfo = retrieveProject(projectName);
+      
       taskSubmitHandler(projectInfo);
+      
+      bodyContainer.removeChild(taskForm);
+    
       projectButtons();
+
+      taskListEvents()
     })
 
     cancelTask.addEventListener('click', () =>{
       bodyContainer.removeChild(taskForm);
       projectButtons();
+
+      taskListEvents();
       
     })
   }
     
 
-  function editHeaderEvents(editBtnData, projectInfo){
+  function editHeaderEvents(editBtnData, projectName){
+    let projectInfo = retrieveProject(projectName);
     // priority buttons 
     let low = editBtnData.low;
     let med = editBtnData.med;
@@ -200,20 +213,81 @@ function allPageEvents(bodyContainer){
   let cancelPrjEdit = editBtnData.cancel;
 
   submitPrjEdit.addEventListener('click', () => { 
+    let projectInfo = retrieveProject(projectName);
     
-    editProjectSubmit(priorityValue, projectInfo); /* eventHandling.js */
-    listEvents();
+   if(editProjectSubmit(priorityValue, projectInfo) === true){
     projectButtons();
+   }; /* eventHandling.js */
+  
+    
+    listEvents();
+    
+    
+
+    taskListEvents();
   });
 
   cancelPrjEdit.addEventListener('click',() =>{
+    let projectInfo = retrieveProject(projectName);
     populateProject(projectInfo)
     projectButtons();
+    taskListEvents();
   })
+  }
+
+  function taskListEvents(){
+    let projectName = document.querySelector('.projectTitle').textContent;
+
+
+    let listItem = document.querySelectorAll('.taskListItem');
+
+    listItem.forEach(item => {
+      let deleteItem = item.querySelector('.deleteTask')
+      let editTask = item.querySelector('.editTask');
+
+      let projectInfo = retrieveProject(projectName);
+
+      deleteItem.addEventListener('click', () =>{
+        let taskName = item.querySelector('.taskNameOutput').textContent;
+        removeProject(projectInfo.name);
+        deleteTask(taskName, projectInfo);
+        storeItems(projectInfo)
+        let ul = document.querySelector('.taskList');
+
+        ul.removeChild(item);
+      })
+
+      editTask.addEventListener('click', () =>{
+        let 
+        taskName = item.querySelector('.taskNameOutput').textContent,
+        dueDate = item.querySelector('.taskDueOutput').textContent,
+        comment = item.querySelector('.taskCommentOutput').textContent;
+        let editTaskObj = editTaskForm(taskName, dueDate, comment);
+        
+        let submit = editTaskObj.submit;
+        submit.addEventListener('click', () =>{
+          let projectInfo = retrieveProject(projectName);
+
+          taskSubmitHandler(projectInfo);
+          bodyContainer.removeChild(document.querySelector('.taskForm'));
+          listEvents();
+          editHeaderEvents()
+          taskListEvents();
+        })
+        let cancel = editTaskObj.cancel;
+
+        cancel.addEventListener('click', () =>{
+          bodyContainer.removeChild(document.querySelector('.taskForm'));
+          listEvents();
+          editHeaderEvents()
+        })
+      })
+    })
   }
 }
 
-//Page Element Constants:
+
+//PAGE ELEMENT CONSTANTS
 
 function headerDOM(bodyContainer){
   let header = DOMObjects('h1', 'header', bodyContainer);
