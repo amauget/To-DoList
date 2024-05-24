@@ -1,8 +1,7 @@
-const{storeItems, projectList, retrieveProject, removeProject, deleteTask, taskParseData} = require('./dataStorage');
+const{storeItems, projectList,taskList, retrieveProject, removeProject, deleteTask, taskParseData, dateFormat} = require('./dataStorage');
 const{projectForm, InputComponents, resetInputs, AlertWindow, createTaskForm, editTaskForm} = require('./projectForm.js');
 const{DOMObjects, elementText} = require('./createDOM');
 const{formSubmit, editProjectSubmit, removeProjectHandler, taskSubmitHandler, submitProcessing} = require('./eventHandling');
-const{findStorageIndex, requiredInputs} = require('./verify.js');
 const{populateProject, headerLayout, editHeader, priorityBackground} = require('./createProject.js');
 
 import './stylesheets/style.css';
@@ -13,27 +12,18 @@ function initiatePage(){
   let body = document.querySelector('body');
   let bodyContainer = DOMObjects('div', 'bodyContainer', body);
 
-  
-
-
   headerDOM(bodyContainer); /* HeaderDOM is static, so it's called and not valued. */
-
   
   allPageEvents(bodyContainer);
-
-
 }
 
-
 function allPageEvents(bodyContainer){
-  
   let projectContainer =  DOMObjects('div', 'projectContainer', bodyContainer);
   let sideBarContainer = sideBarDOM(bodyContainer, projectContainer);
   let hiddenContainer = projectForm(bodyContainer);
 
   sideBar();
  
-
   function sideBar(){
     /*Side bar list events */
     listEvents()
@@ -46,12 +36,10 @@ function allPageEvents(bodyContainer){
       
       formEvents(hiddenContainer);
     });
-  
   };
   function listEvents(){
     let li = document.querySelectorAll('.sideBarList');
     let hiddenContainer = document.querySelector('.hiddenContainer');
-
   
     li.forEach((item) =>{ 
       
@@ -59,15 +47,13 @@ function allPageEvents(bodyContainer){
         hiddenContainer.style.display = 'none';
         resetInputs();
         let name = item.querySelector('.projectListName').textContent;
-    
+        
         populateProject(name);
+
         projectButtons();
         taskListEvents();
-  
       })
     });
-   
-
     return true;
   }
   function formEvents(){
@@ -84,8 +70,6 @@ function allPageEvents(bodyContainer){
         listEvents(); /* calls again to update 'li' definition */
         projectButtons()
       }
-      
-
     });
     
     let cancel = document.querySelector('.cancelBtn'); 
@@ -95,9 +79,7 @@ function allPageEvents(bodyContainer){
       resetInputs();
     })
   }
-  
   function projectButtons(){ 
-
     let projectName = document.querySelector('.projectTitle').textContent;
 
     let projectInfo = retrieveProject(projectName);
@@ -112,12 +94,9 @@ function allPageEvents(bodyContainer){
 
     editBtn.addEventListener('click',()=> {    
       resetInputs();
-      
-      
       /* populates edit header, and returns related buttons as Obj */
       
       editHeaderEvents(projectName, projectContainer);
-      
     })
 
     addTask.addEventListener('click',() =>{
@@ -125,7 +104,6 @@ function allPageEvents(bodyContainer){
 
       createTaskForm(projectInfo);
       addTaskEvents(projectInfo.name);
-     
       
     })
     deleteBtn.addEventListener('click', () =>{
@@ -134,7 +112,6 @@ function allPageEvents(bodyContainer){
 
       let yes = alertBtns[0]; 
       let no = alertBtns[1];
-
       
       yes.addEventListener('click', () => {
         let projectInfo = retrieveProject(projectName);
@@ -142,17 +119,13 @@ function allPageEvents(bodyContainer){
         removeProjectHandler(areYouSure, projectContainer, projectInfo);
         
         listEvents();
-        
       })
       no.addEventListener('click', () =>{
-
         areYouSure.removeContainer();
-
       })
-        
     })
-    
   }
+
   function editHeaderEvents(projectName, projectContainer){
     let projectInfo = retrieveProject(projectName);
     let headerObject = headerLayout(projectInfo,projectContainer )
@@ -167,12 +140,10 @@ function allPageEvents(bodyContainer){
   
     let priorityArray = [low, med, high];
   
-  
     let changeColor = (selection) =>{
       for (i of priorityArray){
         i.style.background = 'white'; /* resets unselected button background */
       }
-      
       selection.style.background = priorityBackground(selection.textContent);
       
       return priorityValue = selection.textContent;
@@ -180,7 +151,6 @@ function allPageEvents(bodyContainer){
   
     priorityArray.forEach(item =>{ 
       item.addEventListener('click',() => { changeColor(item)}) /* need to assign value to priority */
-    
     });
   let submitPrjEdit = editBtnData.submit;
   
@@ -201,7 +171,6 @@ function allPageEvents(bodyContainer){
     populateProject(projectInfo);
     projectButtons();
     taskListEvents();
-    
   })
   }
   
@@ -235,7 +204,6 @@ function allPageEvents(bodyContainer){
   function taskListEvents(){
     let projectName = document.querySelector('.projectTitle').textContent;
 
-
     let listItem = document.querySelectorAll('.taskListItem');
 
     listItem.forEach(item => {
@@ -267,10 +235,7 @@ function allPageEvents(bodyContainer){
           if(taskSubmitHandler(taskName) === true){
             duplicateTaskAlert(taskName, projectInfo, 'edit');
           };
-            callDispatch();
-
-
-          
+            callDispatch();          
         })
         let cancel = editTaskObj.cancel;
 
@@ -300,7 +265,6 @@ function allPageEvents(bodyContainer){
 
       projectInfo.taskObj.push(taskObject);
 
-      
       submitProcessing(projectInfo);
       
       duplicateForm.removeContainer()
@@ -311,7 +275,6 @@ function allPageEvents(bodyContainer){
       duplicateForm.removeContainer()
       callDispatch()
     })
-
   }
   function callDispatch(){
     listEvents();
@@ -319,8 +282,6 @@ function allPageEvents(bodyContainer){
     taskListEvents();
   }
 }
-
-
 //PAGE ELEMENT CONSTANTS
 
 function headerDOM(bodyContainer){
@@ -341,20 +302,14 @@ function sideBarDOM(bodyContainer){
 
   let ul = DOMObjects('ul', 'projectList', sideBarContainer);
 
-  
-
   projectList();
 
   let addProject = DOMObjects('button', 'addProject', sideBarContainer);
   elementText(addProject, 'Add Project');
 
-  
-
   return sideBarContainer;
 }
-
 
 initiatePage();
 
 
-console.trace();  

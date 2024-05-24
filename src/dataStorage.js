@@ -35,7 +35,6 @@ function taskParseData(){
   return taskObject;
 }
 function dateFormat(dueDate){
-
   let dateString = ``;
 
   if(dueDate !== ''){
@@ -85,7 +84,6 @@ function projectList(){ /* rewrite to sort based on due date */
 
     return `${month}/${day}/${year}`;
   }
-
   // Access each object and format its due date
   dataArray.forEach(item => {
     let dueDate = parseDate(item.due);
@@ -103,6 +101,7 @@ function projectList(){ /* rewrite to sort based on due date */
   });
     return ul;
 }
+
 function storedDataArray(){
   let dataArray = []; /* Array to append all key names */ 
   for (let i = 0; i < localStorage.length; i++){
@@ -123,7 +122,6 @@ function deleteTask(taskName, projectInfo){
   projectInfo.taskObj = taskObj;
   return projectInfo;
 }
-
 
 module.exports = {
   parseData,

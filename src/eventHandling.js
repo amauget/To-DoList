@@ -1,7 +1,7 @@
-const{projectForm, resetInputs, AlertWindow, InputComponents, editTaskForm} = require('./projectForm.js');
+const{resetInputs, AlertWindow} = require('./projectForm.js');
 const{findStorageIndex, requiredInputs} = require('./verify.js');
-const{populateProject, editHeader, headerLayout, priorityBackground} = require('./createProject.js');
-const{parseData,taskParseData,storeItems, removeProject, projectList, retrieveProject, dateFormat, deleteTask} = require('./dataStorage');
+const{populateProject} = require('./createProject.js');
+const{parseData,taskParseData,storeItems, removeProject, projectList, retrieveProject, deleteTask} = require('./dataStorage');
 const{DOMObjects, elementText} = require('./createDOM.js')
 
 function formSubmit(hiddenContainer){
@@ -52,14 +52,9 @@ function formVerification(nameInput, dateInput, priorityRating){
     })
     return false;
   }
-  
-
 }
 
-
 function editProjectSubmit(priorityValue, projectInfo){
-  
-
   let newTitle = document.querySelector('.projectTitle');
   
   let dueDate = document.querySelector('.editDateInput');
@@ -76,7 +71,7 @@ function editProjectSubmit(priorityValue, projectInfo){
     newTitle.value = originalName;
     let nameAlert = new AlertWindow('Another project already has this name. Try something else.');
     nameAlert.okayAlert();
-    console.log(nameAlert)
+    
     let okay = (nameAlert.container).querySelector('.okayButton');
     okay.addEventListener('click', () =>{
       nameAlert.removeContainer();
@@ -95,8 +90,6 @@ function editProjectSubmit(priorityValue, projectInfo){
     populateProject(updatedObj);
    
     return true;
- 
-
   }
 };
 function removeProjectHandler(areYouSure, projectContainer, projectInfo){
@@ -108,10 +101,8 @@ function removeProjectHandler(areYouSure, projectContainer, projectInfo){
       removeProject(projectInfo.name), projectList();
 
       areYouSure.removeContainer();
-      
 }
 function taskSubmitHandler(taskName){
-
   let projectName = document.querySelector('.projectTitle').textContent;
   let projectInfo = retrieveProject(projectName);
 
@@ -154,8 +145,6 @@ function taskSubmitHandler(taskName){
       }
     }
   }  
-
-
   function taskDuplicateCheck(projectInfo, taskName){
     let allTasks = projectInfo.taskObj;
     for(let i = 0; i< allTasks.length; i++){
@@ -165,18 +154,17 @@ function taskSubmitHandler(taskName){
       
     }
   }
- 
 }
 
 function submitProcessing(projectInfo){
   let bodyContainer = document.querySelector('.bodyContainer');
 
   bodyContainer.removeChild(document.querySelector('.taskForm')); /* Only deletes related to submit after info verified. */
-  
+
   removeProject(projectInfo.name); 
 
   storeItems(projectInfo);
-  
+
   populateProject(projectInfo);
 }
 

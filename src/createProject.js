@@ -1,21 +1,17 @@
 const{DOMObjects, elementText} = require('./createDOM')/*  DOMObjects(elementType,name, parent)  elementText(name, text) */
-const{parseData,storeItems, removeProject, projectList, retrieveProject} = require('./dataStorage');
-
+const{retrieveProject} = require('./dataStorage');
 
 function populateProject(projectInfo){
   let projectContainer = document.querySelector('.projectContainer');
   
   if(typeof(projectInfo)=== 'string'){ /* condition when side bar list is clicked. */
     projectInfo = retrieveProject(projectInfo);
-
   }  
 
   headerLayout(projectInfo, projectContainer); // populates project header. Defined in index.js for return val.
-
 }
 
 function headerLayout(projectObj, projectContainer){ 
- 
   projectContainer.innerHTML = ''; /* reset content every execution */
 
   //Header Container and Items
@@ -44,9 +40,6 @@ function headerLayout(projectObj, projectContainer){
   let editBtn = DOMObjects('button', 'editProject', headerContainer);
   elementText(editBtn, 'Edit Project Details');
 
-
-
-
   let headerObject = {
     container: headerContainer,
     title: projectTitle, 
@@ -56,10 +49,10 @@ function headerLayout(projectObj, projectContainer){
     deleteProject: deleteProject,
     edit: editBtn, }
   
-    taskLayout(projectObj, projectContainer)
+  taskLayout(projectObj, projectContainer)
 
-   /* returns headerObject to be referenced in editHeader() */
-   return headerObject;
+  /* returns headerObject to be referenced in editHeader() */
+  return headerObject;
   
 }
 function taskLayout(projectInfo, projectContainer){
@@ -74,17 +67,22 @@ function taskLayout(projectInfo, projectContainer){
   let listContainer = DOMObjects('div', 'listContainer', taskContainer);
 
   if(projectInfo.taskObj.length !== 0){
-    listContainer = taskList(projectInfo, listContainer);   
+    listContainer = taskListPopulate(projectInfo, listContainer);   
 
   }
-
   return projectContainer;
 }
 
-function taskList(projectInfo, listContainer){   
+function taskListPopulate(projectInfo, listContainer){   
+  let ul = DOMObjects('ul', 'taskList', listContainer);
+
   let taskObj = projectInfo.taskObj;
 
-  let ul = DOMObjects('ul', 'taskList', listContainer)
+  let parseDate = (dateStr) => {
+    let [month, day, year] = dateStr.split('-');
+    return new Date(year, month - 1, day); // Months are 0-based
+  }
+  taskObj.sort((a, b) => parseDate(a.dueDate) - parseDate(b.dueDate));
  
   for(let i = 0; i < taskObj.length; i++){
     
@@ -105,14 +103,11 @@ function taskList(projectInfo, listContainer){
 
     let editTask = DOMObjects('img', 'editTask', li);
     editTask.src = './externalContent/gear.svg';
-
   }
   return listContainer
 }
 
-
 function editHeader(headerObject){
-  
   let headerContainer = headerObject.container;
   headerContainer.innerHTML = '';
 
@@ -200,7 +195,6 @@ function priorityBackground(priority){
   }
   return background;
 }
-
 
 module.exports = {
   populateProject,

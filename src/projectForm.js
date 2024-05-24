@@ -35,20 +35,17 @@ class AlertWindow{
     this.container.className = 'alertWindow';
 
     this.h3 = DOMObjects('h3', 'alertHeader', this.container);
-   
-
   }
+
   okayAlert(){
     let okayBtn = DOMObjects('button', 'okayButton', this.container);
     elementText(okayBtn, 'Okay');
-    
 
     elementText(this.h3, this.message);
         
     elementText(okayBtn, 'Okay');
-
-    
   }
+
   twoButtonAlert(textA, textB){
     elementText(this.h3, this.message); 
 
@@ -60,13 +57,13 @@ class AlertWindow{
 
     return [button1, button2];
   }
+
   removeContainer(){
     this.bodyContainer.removeChild(this.container);
   }
 }
 
 function projectForm(bodyContainer){
-
   let hiddenContainer = DOMObjects('div', 'hiddenContainer', bodyContainer);
   hiddenContainer.innerHTML = '';
 
@@ -108,15 +105,15 @@ function projectForm(bodyContainer){
 function resetInputs(){
   let formInputs = document.querySelectorAll('input');
   
-    formInputs.forEach(function(input){
-      if(input.type === 'text' || input.type === 'date'){
-        input.value = '';
-        input.style.border = 'none'
-      }
-      else{
-        input.checked = false;
-      }
-    })
+  formInputs.forEach(function(input){
+    if(input.type === 'text' || input.type === 'date'){
+      input.value = '';
+      input.style.border = 'none'
+    }
+    else{
+      input.checked = false;
+    }
+  })
   let formComments = document.querySelectorAll('textarea');
   formComments.forEach((comment) => {
     comment.value = '';
@@ -126,18 +123,12 @@ function resetInputs(){
 function createTaskForm(projectInfo){
   let bodyContainer = document.querySelector('.bodyContainer');
 
-  // let hiddenContainer = DOMObjects('div', 'hiddenTaskContainer', bodyContainer); 
-  /*Hidden container may be replaced with innerHTML dump. or bodyContainer.removeChild()  */
-  // showForm();
   let form = DOMObjects('div', 'taskForm', bodyContainer);
   form.innerHTML = '';
-
 
   let formTitle = DOMObjects('h3', 'formTitle', form);
   elementText(formTitle, `Create a new Task for: "${projectInfo.name}"`);
   formTitle.id = 'formTitle'
-
-  let parentProject = projectInfo.name /* needs to be somehow used to bind in storage. */
 
   let taskName = new InputComponents('text', 'taskName', 'Enter a task name: ');
   taskName.makeInput(form);
@@ -163,7 +154,6 @@ function createTaskForm(projectInfo){
 }
 function editTaskForm(taskName, dueDate, comment){
   let bodyContainer = document.querySelector('.bodyContainer');
- 
   
   let editForm = DOMObjects('div', 'taskForm', bodyContainer);
 
