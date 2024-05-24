@@ -17,7 +17,23 @@ function parseData(nameInput, dateInput, thirdInput,task){ /* task will be undef
   
   return projectObj;
 }
+function taskParseData(){
+  let taskNameInput = document.querySelector('.taskName');
 
+  let dueDateInput = document.querySelector('.taskDue');
+  let dueDate = dateFormat(dueDateInput.value);
+  
+  let comment = document.querySelector('.taskComment');
+  let taskObject = {
+    taskName: taskNameInput.value,
+    dueDate: dueDate,
+    comment: comment.value,
+    taskNameInput: taskNameInput,
+    dueDateInput: dueDateInput,
+    commentInput: comment
+  }
+  return taskObject;
+}
 function dateFormat(dueDate){
 
   let dateString = ``;
@@ -111,6 +127,7 @@ function deleteTask(taskName, projectInfo){
 
 module.exports = {
   parseData,
+  taskParseData,
   storeItems,
   projectList,
   removeProject,

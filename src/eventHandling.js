@@ -1,7 +1,7 @@
-const{projectForm, resetInputs, AlertWindow} = require('./projectForm.js');
+const{projectForm, resetInputs, AlertWindow, InputComponents, editTaskForm} = require('./projectForm.js');
 const{findStorageIndex, requiredInputs} = require('./verify.js');
-const{populateProject, editHeader, headerLayout} = require('./createProject.js');
-const{parseData,storeItems, removeProject, projectList, retrieveProject, dateFormat} = require('./dataStorage');
+const{populateProject, editHeader, headerLayout, priorityBackground} = require('./createProject.js');
+const{parseData,taskParseData,storeItems, removeProject, projectList, retrieveProject, dateFormat, deleteTask} = require('./dataStorage');
 const{DOMObjects, elementText} = require('./createDOM.js')
 
 function formSubmit(hiddenContainer){
@@ -110,38 +110,80 @@ function removeProjectHandler(areYouSure, projectContainer, projectInfo){
       areYouSure.removeContainer();
       
 }
-function taskSubmitHandler(projectInfo){
-  let taskName = document.querySelector('.taskName');
+function taskSubmitHandler(taskName){
+
+  let projectName = document.querySelector('.projectTitle').textContent;
+  let projectInfo = retrieveProject(projectName);
+
+  let taskHeader = document.querySelector('#formTitle');
+  /* taskHeader was assigned a value of taskName in editTaskForm() to isolate current task */
   
+  let taskNameInput = document.querySelector('.taskName');
   let dueDateInput = document.querySelector('.taskDue');
-  let dueDate = dateFormat(dueDateInput.value);
-  
 
-  let comment = document.querySelector('.taskComment').value;
+  let required = requiredInputs(taskNameInput, dueDateInput);
 
-  let required = requiredInputs(taskName, dueDateInput);
-  if (required === true){
+  if (required === true){ /* otherwise, requiredInputs() alters form input borders */
+    
+    let taskObject = taskParseData();
 
-    let taskObject = {
-      taskName: taskName.value,
-      dueDate: dueDate,
-      comment: comment
-    };
-    (projectInfo.taskObj).push(taskObject); 
-    removeProject(projectInfo.name)
-    storeItems(projectInfo);
-    populateProject(projectInfo)
+    if(taskHeader.textContent === 'Edit Task'){
+
+
+      if(taskNameInput.value === taskName||taskDuplicateCheck(projectInfo, taskNameInput.value) !== true ){
+     
+        deleteTask(taskName, projectInfo);
+        projectInfo.taskObj.push(taskObject);
+      
+        submitProcessing(projectInfo)
+      }
+      else{
+        return true; /* Indication to call duplicate form event listeners */
+      }
+    }
+    else{
+      let duplicate = taskDuplicateCheck(projectInfo, taskNameInput.value);
+
+      if(duplicate !== true ){
+        projectInfo.taskObj.push(taskObject)
+
+        submitProcessing(projectInfo);
+      }
+      else{
+        return true;
+      }
+    }
+  }  
+
+
+  function taskDuplicateCheck(projectInfo, taskName){
+    let allTasks = projectInfo.taskObj;
+    for(let i = 0; i< allTasks.length; i++){
+      if(allTasks[i].taskName === taskName){
+        return true;
+      }
+      
+    }
   }
+ 
+}
 
+function submitProcessing(projectInfo){
+  let bodyContainer = document.querySelector('.bodyContainer');
+
+  bodyContainer.removeChild(document.querySelector('.taskForm')); /* Only deletes related to submit after info verified. */
   
+  removeProject(projectInfo.name); 
+
+  storeItems(projectInfo);
   
-  
+  populateProject(projectInfo);
 }
 
 module.exports = {
   formSubmit,
   editProjectSubmit,
   removeProjectHandler,
-  taskSubmitHandler
-
+  taskSubmitHandler,
+  submitProcessing
 }

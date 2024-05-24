@@ -49,13 +49,16 @@ class AlertWindow{
 
     
   }
-  yesNOAlert(){
-    let yes = DOMObjects('button', 'yesButton', this.container);
-    let no = DOMObjects('button', 'noButton', this.container);
+  twoButtonAlert(textA, textB){
+    elementText(this.h3, this.message); 
 
-    elementText(this.h3, this.message);
-    elementText(yes, 'Yes'); elementText(no, 'No');
+    let button1 = DOMObjects('button', 'button1', this.container);
+    elementText(button1, textA)
+    
+    let button2 = DOMObjects('button', 'button2', this.container);
+    elementText(button2, textB);
 
+    return [button1, button2];
   }
   removeContainer(){
     this.bodyContainer.removeChild(this.container);
@@ -132,6 +135,7 @@ function createTaskForm(projectInfo){
 
   let formTitle = DOMObjects('h3', 'formTitle', form);
   elementText(formTitle, `Create a new Task for: "${projectInfo.name}"`);
+  formTitle.id = 'formTitle'
 
   let parentProject = projectInfo.name /* needs to be somehow used to bind in storage. */
 
@@ -164,6 +168,8 @@ function editTaskForm(taskName, dueDate, comment){
   let editForm = DOMObjects('div', 'taskForm', bodyContainer);
 
   let title = DOMObjects('h3', 'formTitle', editForm);
+  title.id = 'formTitle';
+  title.value = taskName;
   elementText(title, `Edit Task`);
   
   let editTaskName = new InputComponents('text', 'taskName', 'Task Name: ');
@@ -183,7 +189,7 @@ function editTaskForm(taskName, dueDate, comment){
   let submit = DOMObjects('button', 'submitBtn', editForm);
   elementText(submit, 'submit');
   let cancel = DOMObjects('button', 'cancelBtn', editForm)
-  elementText(cancel, 'cancel')
+  elementText(cancel, 'cancel');
 
   return {editTaskName: editTaskName.input, editTaskDate: editTaskDate.input, editTaskComment: editTaskComment , submit: submit, cancel: cancel}
 }

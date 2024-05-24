@@ -13,6 +13,7 @@ return index;
 }
 
 function requiredInputs(nameInput, dateInput){
+  
   nameInput.style.border = 'none';
   
   dateInput.style.border = 'none';

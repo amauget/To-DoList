@@ -1,7 +1,7 @@
-const{storeItems, projectList, retrieveProject, removeProject, deleteTask} = require('./dataStorage');
+const{storeItems, projectList, retrieveProject, removeProject, deleteTask, taskParseData} = require('./dataStorage');
 const{projectForm, InputComponents, resetInputs, AlertWindow, createTaskForm, editTaskForm} = require('./projectForm.js');
 const{DOMObjects, elementText} = require('./createDOM');
-const{formSubmit, editProjectSubmit, removeProjectHandler, taskSubmitHandler} = require('./eventHandling');
+const{formSubmit, editProjectSubmit, removeProjectHandler, taskSubmitHandler, submitProcessing} = require('./eventHandling');
 const{findStorageIndex, requiredInputs} = require('./verify.js');
 const{populateProject, headerLayout, editHeader, priorityBackground} = require('./createProject.js');
 
@@ -13,7 +13,7 @@ function initiatePage(){
   let body = document.querySelector('body');
   let bodyContainer = DOMObjects('div', 'bodyContainer', body);
 
-  let projectContainer =  DOMObjects('div', 'projectContainer', bodyContainer);
+  
 
 
   headerDOM(bodyContainer); /* HeaderDOM is static, so it's called and not valued. */
@@ -22,23 +22,21 @@ function initiatePage(){
   allPageEvents(bodyContainer);
 
 
-
 }
 
 
 function allPageEvents(bodyContainer){
   
-  let projectContainer = document.querySelector('.projectContainer');
+  let projectContainer =  DOMObjects('div', 'projectContainer', bodyContainer);
   let sideBarContainer = sideBarDOM(bodyContainer, projectContainer);
   let hiddenContainer = projectForm(bodyContainer);
 
   sideBar();
-  
+ 
 
   function sideBar(){
     /*Side bar list events */
-    listEvents();
-
+    listEvents()
     
     let addProject = document.querySelector('.addProject');
       
@@ -99,6 +97,7 @@ function allPageEvents(bodyContainer){
   }
   
   function projectButtons(){ 
+
     let projectName = document.querySelector('.projectTitle').textContent;
 
     let projectInfo = retrieveProject(projectName);
@@ -114,11 +113,11 @@ function allPageEvents(bodyContainer){
     editBtn.addEventListener('click',()=> {    
       resetInputs();
       
-      let editBtnData = editHeader(headerObject);
       
       /* populates edit header, and returns related buttons as Obj */
       
-      editHeaderEvents(editBtnData, projectName);
+      editHeaderEvents(projectName, projectContainer);
+      
     })
 
     addTask.addEventListener('click',() =>{
@@ -126,15 +125,17 @@ function allPageEvents(bodyContainer){
 
       createTaskForm(projectInfo);
       addTaskEvents(projectInfo.name);
-      
+     
       
     })
     deleteBtn.addEventListener('click', () =>{
       let areYouSure = new AlertWindow('Are you sure you would like to delete this project, and any associated to-do items?');
-      areYouSure.yesNOAlert();
+      let alertBtns = areYouSure.twoButtonAlert('Yes', 'No');
 
-      let yes = document.querySelector('.yesButton');
-      let no = document.querySelector('.noButton');
+      let yes = alertBtns[0]; 
+      let no = alertBtns[1];
+
+      
       yes.addEventListener('click', () => {
         let projectInfo = retrieveProject(projectName);
 
@@ -152,47 +153,20 @@ function allPageEvents(bodyContainer){
     })
     
   }
-  
-  function addTaskEvents(projectName){
-    
-
-    let taskForm = document.querySelector('.taskForm')
-    let submitTask = taskForm.querySelector('.submitBtn');
-    let cancelTask = taskForm.querySelector('.cancelBtn');
-
-    submitTask.addEventListener('click', () =>{
-      let projectInfo = retrieveProject(projectName);
-      
-      taskSubmitHandler(projectInfo);
-      
-      bodyContainer.removeChild(taskForm);
-    
-      projectButtons();
-
-      taskListEvents()
-    })
-
-    cancelTask.addEventListener('click', () =>{
-      bodyContainer.removeChild(taskForm);
-      projectButtons();
-
-      taskListEvents();
-      
-    })
-  }
-    
-
-  function editHeaderEvents(editBtnData, projectName){
+  function editHeaderEvents(projectName, projectContainer){
     let projectInfo = retrieveProject(projectName);
+    let headerObject = headerLayout(projectInfo,projectContainer )
+    let editBtnData = editHeader(headerObject);
+  
     // priority buttons 
     let low = editBtnData.low;
     let med = editBtnData.med;
     let high = editBtnData.high;
-
+  
     let priorityValue = projectInfo.priority;
-
+  
     let priorityArray = [low, med, high];
-
+  
   
     let changeColor = (selection) =>{
       for (i of priorityArray){
@@ -203,36 +177,59 @@ function allPageEvents(bodyContainer){
       
       return priorityValue = selection.textContent;
     }
-
+  
     priorityArray.forEach(item =>{ 
       item.addEventListener('click',() => { changeColor(item)}) /* need to assign value to priority */
     
     });
   let submitPrjEdit = editBtnData.submit;
-
+  
   let cancelPrjEdit = editBtnData.cancel;
-
+  
   submitPrjEdit.addEventListener('click', () => { 
     let projectInfo = retrieveProject(projectName);
     
    if(editProjectSubmit(priorityValue, projectInfo) === true){
     projectButtons();
    }; /* eventHandling.js */
-  
-    
     listEvents();
-    
-    
-
     taskListEvents();
   });
-
+  
   cancelPrjEdit.addEventListener('click',() =>{
-    let projectInfo = retrieveProject(projectName);
-    populateProject(projectInfo)
+    projectInfo = retrieveProject(projectName);
+    populateProject(projectInfo);
     projectButtons();
     taskListEvents();
+    
   })
+  }
+  
+  function addTaskEvents(projectName){
+    let taskForm = document.querySelector('.taskForm')
+    let submitTask = taskForm.querySelector('.submitBtn');
+    let cancelTask = taskForm.querySelector('.cancelBtn');
+
+    submitTask.addEventListener('click', () =>{
+      let taskName = undefined;
+
+      if(taskSubmitHandler(taskName) === true){
+        let projectInfo = retrieveProject(projectName);
+        duplicateTaskAlert(taskName, projectInfo, 'add');
+      };
+    
+      projectButtons();
+
+      taskListEvents();
+    })
+
+    cancelTask.addEventListener('click', () =>{
+      bodyContainer.removeChild(taskForm);
+      projectButtons();
+
+      taskListEvents();
+      
+    })
   }
 
   function taskListEvents(){
@@ -250,7 +247,7 @@ function allPageEvents(bodyContainer){
       deleteItem.addEventListener('click', () =>{
         let taskName = item.querySelector('.taskNameOutput').textContent;
         removeProject(projectInfo.name);
-        deleteTask(taskName, projectInfo);
+        projectInfo = deleteTask(taskName, projectInfo);
         storeItems(projectInfo)
         let ul = document.querySelector('.taskList');
 
@@ -266,23 +263,60 @@ function allPageEvents(bodyContainer){
         
         let submit = editTaskObj.submit;
         submit.addEventListener('click', () =>{
-          let projectInfo = retrieveProject(projectName);
 
-          taskSubmitHandler(projectInfo);
-          bodyContainer.removeChild(document.querySelector('.taskForm'));
-          listEvents();
-          editHeaderEvents()
-          taskListEvents();
+          if(taskSubmitHandler(taskName) === true){
+            duplicateTaskAlert(taskName, projectInfo, 'edit');
+          };
+            callDispatch();
+
+
+          
         })
         let cancel = editTaskObj.cancel;
 
         cancel.addEventListener('click', () =>{
           bodyContainer.removeChild(document.querySelector('.taskForm'));
-          listEvents();
-          editHeaderEvents()
+          callDispatch();
         })
       })
     })
+  }
+  function duplicateTaskAlert(taskName, projectInfo, origin){
+    let taskObject = taskParseData();
+
+    let duplicateForm = new AlertWindow('This task already exists. Would you like to duplicate, replace, or try again?');
+    let buttons = duplicateForm.twoButtonAlert('Duplicate', 'Cancel');
+   
+    let duplicate = buttons[0]
+    let cancel =buttons[1];
+    
+    duplicate.addEventListener('click', () => {
+      if(origin === 'edit'){
+  
+        deleteTask(taskName, projectInfo); /* Since title is edited, the original needs to be erased. */
+      }
+      
+      removeProject(projectInfo.name);
+
+      projectInfo.taskObj.push(taskObject);
+
+      
+      submitProcessing(projectInfo);
+      
+      duplicateForm.removeContainer()
+      callDispatch();
+    })
+    cancel.addEventListener('click', () =>{
+      populateProject(projectInfo);
+      duplicateForm.removeContainer()
+      callDispatch()
+    })
+
+  }
+  function callDispatch(){
+    listEvents();
+    projectButtons();
+    taskListEvents();
   }
 }
 

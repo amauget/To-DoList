@@ -1,10 +1,8 @@
 const{DOMObjects, elementText} = require('./createDOM')/*  DOMObjects(elementType,name, parent)  elementText(name, text) */
-const{InputComponents, AlertWindow, resetInputs, createTask} =  require('./projectForm');
 const{parseData,storeItems, removeProject, projectList, retrieveProject} = require('./dataStorage');
 
 
 function populateProject(projectInfo){
-  
   let projectContainer = document.querySelector('.projectContainer');
   
   if(typeof(projectInfo)=== 'string'){ /* condition when side bar list is clicked. */
@@ -14,8 +12,6 @@ function populateProject(projectInfo){
 
   headerLayout(projectInfo, projectContainer); // populates project header. Defined in index.js for return val.
 
-
-  
 }
 
 function headerLayout(projectObj, projectContainer){ 
@@ -109,8 +105,8 @@ function taskList(projectInfo, listContainer){
 
     let editTask = DOMObjects('img', 'editTask', li);
     editTask.src = './externalContent/gear.svg';
+
   }
- 
   return listContainer
 }
 
@@ -205,17 +201,6 @@ function priorityBackground(priority){
   return background;
 }
 
-
-    
-    
-  
-  
- 
-
-function populateTaskList(){
-  
-
-}
 
 module.exports = {
   populateProject,
